@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from domain.runops.enterprise.entities.provision_request import ProvisionRequest
+
+
+class ProvisionRequestsRepository(Protocol):
+    async def create(self, request: ProvisionRequest) -> None: ...
+
+    async def save(self, request: ProvisionRequest) -> None: ...
+
+    async def find_by_id(self, provision_id: str) -> ProvisionRequest | None: ...
+
+    async def list_all(self) -> list[ProvisionRequest]: ...
