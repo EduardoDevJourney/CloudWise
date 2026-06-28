@@ -23,7 +23,7 @@ def _to_provision_request(model: ProvisionRequestModel) -> ProvisionRequest:
         user_id=model.user_id,
         template_id=model.template_id,
         status=ProvisionStatus(model.status),
-        request_data=model.request_data,
+        request_data=json.loads(model.request_data),
         error_message=model.error_message,
         created_at=model.created_at,
         execution_time=model.execution_time,
@@ -34,7 +34,7 @@ def _to_template(model: TemplateModel) -> Template:
     return Template(
         id=UniqueEntityId(model.id),
         name=model.name,
-        params_schema=model.params_schema,
+        params_schema=json.loads(model.params_schema),
         azure_sku=model.azure_sku,
         slug=model.slug,
     )
@@ -50,7 +50,7 @@ class SQLProvisionRequestsRepository:
             user_id=request.user_id,
             template_id=request.template_id,
             status=request.status.value,
-            request_data=request.request_data,
+            request_data=json.dumps(request.request_data),
             error_message=request.error_message,
             created_at=request.created_at,
             execution_time=request.execution_time,
@@ -66,7 +66,7 @@ class SQLProvisionRequestsRepository:
         model.status = request.status.value
         model.error_message = request.error_message
         model.execution_time = request.execution_time
-        model.request_data = request.request_data
+        model.request_data = json.dumps(request.request_data)
         self._session.add(model)
         self._session.commit()
 
@@ -99,7 +99,7 @@ class SQLTemplatesRepository:
         model = TemplateModel(
             id=str(template.id),
             name=template.name,
-            params_schema=template.params_schema,
+            params_schema=json.dumps(template.params_schema),
             azure_sku=template.azure_sku,
             slug=template.slug or str(template.id),
         )
@@ -120,7 +120,7 @@ class SQLCostRecordsRepository:
                 cost=m.cost,
                 record_date=m.record_date,
                 resource_type=m.resource_type,
-                tags=m.tags,
+                tags=json.loads(m.tags),
             )
             for m in models
         ]
@@ -134,7 +134,7 @@ class SQLCostRecordsRepository:
                     cost=record.cost,
                     record_date=record.record_date,
                     resource_type=record.resource_type,
-                    tags=record.tags,
+                    tags=json.dumps(record.tags),
                 )
             )
         self._session.commit()

@@ -16,15 +16,17 @@ def seed_database(session: Session) -> None:
         TemplateModel(
             id="00000000-0000-4000-8000-000000000001",
             name="Resource Group + Storage Account",
-            params_schema={
-                "type": "object",
-                "properties": {
-                    "resource_name": {"type": "string"},
-                    "environment": {"type": "string"},
-                    "location": {"type": "string"},
-                },
-                "required": ["resource_name", "environment", "location"],
-            },
+            params_schema=json.dumps(
+                {
+                    "type": "object",
+                    "properties": {
+                        "resource_name": {"type": "string"},
+                        "environment": {"type": "string"},
+                        "location": {"type": "string"},
+                    },
+                    "required": ["resource_name", "environment", "location"],
+                }
+            ),
             azure_sku="Standard_LRS",
             slug="rg-storage",
         )
@@ -41,12 +43,12 @@ def seed_database(session: Session) -> None:
                     cost=item["cost"],
                     record_date=date.fromisoformat(item["date"]),
                     resource_type=item["resource_type"],
-                    tags=item.get("tags", {}),
+                    tags=json.dumps(item.get("tags", {})),
                 )
             )
             session.add(
                 CostDimModel(
-                    id=f"dim-{i}",
+                    id=f"22222222-2222-4222-8222-2222222222{i:02d}",
                     record_date=date.fromisoformat(item["date"]),
                     category=item.get("category", "compute"),
                     service_name=item["resource_type"],

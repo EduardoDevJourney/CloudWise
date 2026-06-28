@@ -14,7 +14,7 @@ from domain.runops.enterprise.events.provision_requested_event import (
 from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, kw_only=True)
 class ProvisionRequest(AggregateRoot):
     user_id: str
     template_id: str

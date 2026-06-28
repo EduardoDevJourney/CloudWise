@@ -16,6 +16,7 @@ pyodbc = "^5.2.0"
 pulumi = "^3.140.0"
 pulumi-azure-native = "^2.70.0"
 python-multipart = "^0.0.20"
+pymssql = "^2.3.13"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.0"

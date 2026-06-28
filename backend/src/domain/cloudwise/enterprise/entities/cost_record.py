@@ -5,7 +5,7 @@ from typing import Any
 from core.entities.entity import Entity
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, kw_only=True)
 class CostRecord(Entity):
     subscription_id: str
     cost: float
