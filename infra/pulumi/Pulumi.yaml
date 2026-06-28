@@ -1,0 +1,6 @@
+name: cloud-wise
+description: Cloud Wise Pulumi infrastructure
+runtime:
+  name: python
+  options:
+    toolchain: pip

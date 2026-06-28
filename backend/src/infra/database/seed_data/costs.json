@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cost-001",
+    "subscription_id": "sub-sandbox-001",
+    "cost": 125.50,
+    "date": "2026-06-01",
+    "resource_type": "Microsoft.Storage",
+    "tags": {"env": "dev"}
+  },
+  {
+    "id": "cost-002",
+    "subscription_id": "sub-sandbox-001",
+    "cost": 89.30,
+    "date": "2026-06-02",
+    "resource_type": "Microsoft.Compute",
+    "tags": {"env": "dev"}
+  },
+  {
+    "id": "cost-003",
+    "subscription_id": "sub-sandbox-002",
+    "cost": 210.00,
+    "date": "2026-06-03",
+    "resource_type": "Microsoft.Storage",
+    "tags": {"env": "staging"}
+  },
+  {
+    "id": "cost-004",
+    "subscription_id": "sub-sandbox-001",
+    "cost": 45.75,
+    "date": "2026-06-04",
+    "resource_type": "Microsoft.Network",
+    "tags": {"env": "dev"}
+  },
+  {
+    "id": "cost-005",
+    "subscription_id": "sub-sandbox-002",
+    "cost": 156.20,
+    "date": "2026-06-05",
+    "resource_type": "Microsoft.Compute",
+    "tags": {"env": "staging"}
+  }
+]
