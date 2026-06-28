@@ -67,6 +67,43 @@
 ### Fase 7 — Documentação
 29. `docs: add smoke test checklist and update living docs`
 
+## Status Da Implementação
+
+| Fase | Status |
+|------|--------|
+| 0 — Fundação monorepo | Concluída |
+| 1-4 — Backend DDD + API + Pulumi | Concluída |
+| 5-6 — Frontend camadas + features | Concluída |
+| 7 — Documentação | Concluída |
+
+### Commits realizados
+
+1. `chore: add monorepo structure and gitignore`
+2. `chore: add docker compose for local sql server`
+3. `docs: add architectural decisions skeleton`
+4. `feat(backend): add core ddd foundations`
+5. `feat(backend): add runops and cloudwise domain layer`
+6. `feat(backend): add fastapi infrastructure persistence and pulumi adapter`
+7. `feat(frontend): add react 19 spa with layered architecture`
+8. `docs: add plan, readme, smoke test and architecture guides`
+
+## Como Executar
+
+```bash
+cp .env.example .env
+docker compose up -d
+
+# Backend (requer Poetry)
+cd backend && poetry install
+poetry run uvicorn infra.http.main:app --reload --app-dir src --port 8000
+
+# Frontend
+cd frontend && npm install && npm run dev
+```
+
+- API: http://localhost:8000/api/v1/health
+- UI: http://localhost:5173/dashboard
+
 ## Critério De Pronto
 
 1. `docker compose up` sobe SQL Server local
