@@ -33,7 +33,11 @@ class ExecuteProvisionUseCase:
 
             await self._pulumi_runner.up(
                 stack_name=f"provision-{provision_id}",
-                config=request.request_data,
+                config={
+                    **request.request_data,
+                    "request_id": provision_id,
+                    "owner": request.user_id,
+                },
             )
 
             request.complete()

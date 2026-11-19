@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     azure_client_secret: str = ""
     pulumi_stack: str = "dev"
     pulumi_state_dir: str = "infra/pulumi/.pulumi"
+    pulumi_config_passphrase: str = "cloudwise-dev"
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
 

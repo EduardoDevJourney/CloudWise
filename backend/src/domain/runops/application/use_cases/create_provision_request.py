@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from collections.abc import Callable
 from typing import Any
 
 from core.either import Either, Left, Right
 from core.events.domain_events import DomainEvents
 from domain.runops.application.errors.not_allowed_error import NotAllowedError
+from domain.runops.application.errors.policy_violation_error import PolicyViolationError
 from domain.runops.application.errors.resource_not_found_error import ResourceNotFoundError
 from domain.runops.application.repositories.provision_requests_repository import (
     ProvisionRequestsRepository,
@@ -29,9 +31,11 @@ class CreateProvisionRequestUseCase:
         self,
         provision_repo: ProvisionRequestsRepository,
         templates_repo: TemplatesRepository,
+        policy_validator: Callable[[str, str, str], list[str]] | None = None,
     ) -> None:
         self._provision_repo = provision_repo
         self._templates_repo = templates_repo
+        self._policy_validator = policy_validator
 
     async def execute(
         self, input_data: CreateProvisionRequestInput
@@ -45,8 +49,16 @@ class CreateProvisionRequestUseCase:
                 ResourceNotFoundError("Template", input_data.template_id)
             )
 
+        if self._policy_validator is not None:
+            violations = self._policy_validator(
+                input_data.resource_name, input_data.environment, input_data.location
+            )
+            if violations:
+                return Left(PolicyViolationError(violations))
+
         request_data: dict[str, Any] = {
             "template_id": input_data.template_id,
+            "template": template.slug or str(template.id),
             "resource_name": input_data.resource_name,
             "environment": input_data.environment,
             "location": input_data.location,

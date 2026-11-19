@@ -7,30 +7,41 @@ from sqlmodel import Session, select
 from infra.database.sqlmodel.models import CostDimModel, CostRecordModel, TemplateModel
 
 
-def seed_database(session: Session) -> None:
-    existing = session.exec(select(TemplateModel)).first()
-    if existing:
-        return
+_PARAMS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "resource_name": {"type": "string"},
+        "environment": {"type": "string"},
+        "location": {"type": "string"},
+    },
+    "required": ["resource_name", "environment", "location"],
+}
 
-    session.add(
-        TemplateModel(
-            id="00000000-0000-4000-8000-000000000001",
-            name="Resource Group + Storage Account",
-            params_schema=json.dumps(
-                {
-                    "type": "object",
-                    "properties": {
-                        "resource_name": {"type": "string"},
-                        "environment": {"type": "string"},
-                        "location": {"type": "string"},
-                    },
-                    "required": ["resource_name", "environment", "location"],
-                }
-            ),
-            azure_sku="Standard_LRS",
-            slug="rg-storage",
-        )
-    )
+TEMPLATES = [
+    {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "Resource Group + Storage Account",
+        "azure_sku": "Standard_LRS",
+        "slug": "rg-storage",
+    },
+    {
+        "id": "00000000-0000-4000-8000-000000000002",
+        "name": "Resource Group + Key Vault",
+        "azure_sku": "standard",
+        "slug": "rg-keyvault",
+    },
+]
+
+
+def seed_database(session: Session) -> None:
+    existing_slugs = set(session.exec(select(TemplateModel.slug)).all())
+    for template in TEMPLATES:
+        if template["slug"] not in existing_slugs:
+            session.add(TemplateModel(params_schema=json.dumps(_PARAMS_SCHEMA), **template))
+    session.commit()
+
+    if session.exec(select(CostRecordModel)).first():
+        return
 
     seed_path = Path(__file__).parent / "seed_data" / "costs.json"
     if seed_path.exists():

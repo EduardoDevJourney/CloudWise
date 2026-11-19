@@ -24,6 +24,7 @@ class ProvisionRequestReadDTO(BaseModel):
 
 class TemplateReadDTO(BaseModel):
     id: str
+    slug: str
     name: str
     params_schema: dict[str, Any]
     azure_sku: str
@@ -58,3 +59,9 @@ class CloudWiseDashboardDTO(BaseModel):
 
 class HealthDTO(BaseModel):
     status: str = "ok"
+
+
+class PolicyReadDTO(BaseModel):
+    locations: list[str]
+    environments: list[str]
+    resource_name_pattern: str

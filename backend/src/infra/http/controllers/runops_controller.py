@@ -2,6 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlmodel import Session
 
 from domain.runops.application.errors.not_allowed_error import NotAllowedError
+from domain.runops.application.errors.policy_violation_error import PolicyViolationError
 from domain.runops.application.errors.resource_not_found_error import ResourceNotFoundError
 from domain.runops.application.use_cases.create_provision_request import (
     CreateProvisionRequestInput,
@@ -17,7 +18,12 @@ from infra.database.repositories.sql_repositories import (
     SQLTemplatesRepository,
 )
 from infra.database.session import engine, get_session
-from infra.http.dtos.api_dtos import ProvisionRequestCreateDTO, ProvisionRequestReadDTO
+from infra.http.dtos.api_dtos import (
+    PolicyReadDTO,
+    ProvisionRequestCreateDTO,
+    ProvisionRequestReadDTO,
+    TemplateReadDTO,
+)
 from infra.http.middleware.easy_auth import (
     ROLE_ADMIN,
     ROLE_PROVISIONER,
@@ -25,6 +31,7 @@ from infra.http.middleware.easy_auth import (
     get_current_user,
     require_role,
 )
+from infra.pulumi.policy_loader import load_policy
 from infra.pulumi.pulumi_service import PulumiService
 
 router = APIRouter(prefix="/runops", tags=["runops"])
@@ -60,6 +67,7 @@ async def create_provision(
     use_case = CreateProvisionRequestUseCase(
         SQLProvisionRequestsRepository(session),
         SQLTemplatesRepository(session),
+        policy_validator=load_policy().validate_request,
     )
     result = await use_case.execute(
         CreateProvisionRequestInput(
@@ -78,6 +86,8 @@ async def create_provision(
             raise HTTPException(status_code=403, detail=str(error))
         if isinstance(error, ResourceNotFoundError):
             raise HTTPException(status_code=404, detail=str(error))
+        if isinstance(error, PolicyViolationError):
+            raise HTTPException(status_code=422, detail=error.violations)
         raise HTTPException(status_code=400, detail=str(error))
 
     provision = result.value
@@ -108,3 +118,31 @@ async def list_requests(
     use_case = ListProvisionRequestsUseCase(SQLProvisionRequestsRepository(session))
     requests = await use_case.execute(user_id=user.user_id, is_admin=ROLE_ADMIN in user.roles)
     return [_to_read_dto(r) for r in requests]
+
+
+@router.get("/templates", response_model=list[TemplateReadDTO])
+async def list_templates(
+    session: Session = Depends(get_session),
+    _user: AuthUser = Depends(get_current_user),
+) -> list[TemplateReadDTO]:
+    templates = await SQLTemplatesRepository(session).list_all()
+    return [
+        TemplateReadDTO(
+            id=str(t.id),
+            slug=t.slug,
+            name=t.name,
+            params_schema=t.params_schema,
+            azure_sku=t.azure_sku,
+        )
+        for t in templates
+    ]
+
+
+@router.get("/policy", response_model=PolicyReadDTO)
+async def get_policy(_user: AuthUser = Depends(get_current_user)) -> PolicyReadDTO:
+    policy = load_policy()
+    return PolicyReadDTO(
+        locations=list(policy.ALLOWED_LOCATIONS),
+        environments=list(policy.ALLOWED_ENVIRONMENTS),
+        resource_name_pattern=policy.RESOURCE_NAME_PATTERN.pattern,
+    )

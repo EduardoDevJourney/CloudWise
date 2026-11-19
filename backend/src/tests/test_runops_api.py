@@ -69,3 +69,23 @@ async def test_provisioner_sees_only_own_requests_and_admin_sees_all(client: Asy
     assert provision_id in [r["id"] for r in admin.json()]
     shown = await client.get(f"/api/v1/runops/status/{provision_id}", headers=dev("admin-1", "runops.admin"))
     assert shown.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_policy_violation_returns_422_and_creates_nothing(client: AsyncClient):
+    bad = {**PAYLOAD, "location": "westeurope", "environment": "qa"}
+    headers = dev("policy-user", "runops.provisioner")
+    response = await client.post("/api/v1/runops/provision", json=bad, headers=headers)
+    assert response.status_code == 422
+    assert len(response.json()["detail"]) == 2
+    listed = await client.get("/api/v1/runops/requests", headers=headers)
+    assert listed.json() == []
+
+
+@pytest.mark.asyncio
+async def test_templates_catalog_and_policy_endpoints(client: AsyncClient):
+    headers = dev("u1", "runops.provisioner")
+    templates = (await client.get("/api/v1/runops/templates", headers=headers)).json()
+    assert {t["slug"] for t in templates} >= {"rg-storage", "rg-keyvault"}
+    policy = (await client.get("/api/v1/runops/policy", headers=headers)).json()
+    assert "eastus" in policy["locations"] and "dev" in policy["environments"]
