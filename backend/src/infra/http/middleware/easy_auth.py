@@ -2,7 +2,14 @@ import base64
 import json
 from dataclasses import dataclass
 
-from fastapi import Request
+from collections.abc import Callable
+
+from fastapi import Depends, HTTPException, Request
+
+from infra.config import get_settings
+
+ROLE_PROVISIONER = "runops.provisioner"
+ROLE_ADMIN = "runops.admin"
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +37,8 @@ def _parse_principal_header(request: Request) -> AuthUser | None:
 
 
 def _parse_dev_headers(request: Request) -> AuthUser | None:
+    if get_settings().app_env != "development":
+        return None
     user_id = request.headers.get("X-Dev-User-Id")
     if not user_id:
         return None
@@ -40,11 +49,18 @@ def _parse_dev_headers(request: Request) -> AuthUser | None:
 
 
 def get_current_user(request: Request) -> AuthUser:
+    # O principal vem do Easy Auth do App Service (que valida o token antes
+    # de repassar a requisição). Headers X-Dev-* só valem em desenvolvimento.
     user = _parse_principal_header(request) or _parse_dev_headers(request)
     if user is None:
-        return AuthUser(
-            user_id="anonymous",
-            email="anonymous@dev.local",
-            roles=["runops.provisioner"],
-        )
+        raise HTTPException(status_code=401, detail="Authentication required")
     return user
+
+
+def require_role(*allowed: str) -> Callable[[AuthUser], AuthUser]:
+    def dependency(user: AuthUser = Depends(get_current_user)) -> AuthUser:
+        if not any(role in user.roles for role in allowed):
+            raise HTTPException(status_code=403, detail="Insufficient role")
+        return user
+
+    return dependency

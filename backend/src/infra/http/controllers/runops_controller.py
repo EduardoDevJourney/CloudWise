@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlmodel import Session
 
 from domain.runops.application.errors.not_allowed_error import NotAllowedError
@@ -18,7 +18,13 @@ from infra.database.repositories.sql_repositories import (
 )
 from infra.database.session import engine, get_session
 from infra.http.dtos.api_dtos import ProvisionRequestCreateDTO, ProvisionRequestReadDTO
-from infra.http.middleware.easy_auth import AuthUser, get_current_user
+from infra.http.middleware.easy_auth import (
+    ROLE_ADMIN,
+    ROLE_PROVISIONER,
+    AuthUser,
+    get_current_user,
+    require_role,
+)
 from infra.pulumi.pulumi_service import PulumiService
 
 router = APIRouter(prefix="/runops", tags=["runops"])
@@ -47,11 +53,10 @@ async def _run_provision(provision_id: str) -> None:
 @router.post("/provision", response_model=ProvisionRequestReadDTO, status_code=202)
 async def create_provision(
     body: ProvisionRequestCreateDTO,
-    request: Request,
     background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
+    user: AuthUser = Depends(require_role(ROLE_PROVISIONER, ROLE_ADMIN)),
 ) -> ProvisionRequestReadDTO:
-    user: AuthUser = get_current_user(request)
     use_case = CreateProvisionRequestUseCase(
         SQLProvisionRequestsRepository(session),
         SQLTemplatesRepository(session),
@@ -84,9 +89,12 @@ async def create_provision(
 async def get_status(
     provision_id: str,
     session: Session = Depends(get_session),
+    user: AuthUser = Depends(get_current_user),
 ) -> ProvisionRequestReadDTO:
     use_case = GetProvisionStatusUseCase(SQLProvisionRequestsRepository(session))
-    result = await use_case.execute(provision_id)
+    result = await use_case.execute(
+        provision_id, user_id=user.user_id, is_admin=ROLE_ADMIN in user.roles
+    )
     if result.is_left():
         raise HTTPException(status_code=404, detail=str(result.value))
     return _to_read_dto(result.value)
@@ -95,7 +103,8 @@ async def get_status(
 @router.get("/requests", response_model=list[ProvisionRequestReadDTO])
 async def list_requests(
     session: Session = Depends(get_session),
+    user: AuthUser = Depends(get_current_user),
 ) -> list[ProvisionRequestReadDTO]:
     use_case = ListProvisionRequestsUseCase(SQLProvisionRequestsRepository(session))
-    requests = await use_case.execute()
+    requests = await use_case.execute(user_id=user.user_id, is_admin=ROLE_ADMIN in user.roles)
     return [_to_read_dto(r) for r in requests]

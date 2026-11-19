@@ -1,3 +1,11 @@
+import os
+import tempfile
+
+# Isola os testes: banco SQLite temporário e modo desenvolvimento, independente do .env.
+_db_dir = tempfile.mkdtemp(prefix="cloudwise-tests-")
+os.environ["DATABASE_URL"] = f"sqlite:///{_db_dir}/test.db"
+os.environ["APP_ENV"] = "development"
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlmodel import Session

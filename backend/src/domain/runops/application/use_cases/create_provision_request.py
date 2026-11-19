@@ -23,7 +23,7 @@ class CreateProvisionRequestInput:
 
 
 class CreateProvisionRequestUseCase:
-    REQUIRED_ROLE = "runops.provisioner"
+    ALLOWED_ROLES = ("runops.provisioner", "runops.admin")
 
     def __init__(
         self,
@@ -36,7 +36,7 @@ class CreateProvisionRequestUseCase:
     async def execute(
         self, input_data: CreateProvisionRequestInput
     ) -> Either[Exception, ProvisionRequest]:
-        if self.REQUIRED_ROLE not in input_data.roles:
+        if not any(r in input_data.roles for r in self.ALLOWED_ROLES):
             return Left(NotAllowedError("provision resource"))
 
         template = await self._templates_repo.find_by_id(input_data.template_id)

@@ -11,7 +11,7 @@ async def test_health(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_cloudwise_dashboard(client: AsyncClient):
-    response = await client.get("/api/v1/cloudwise/dashboard")
+    response = await client.get("/api/v1/cloudwise/dashboard", headers={"X-Dev-User-Id": "t", "X-Dev-User-Roles": "runops.provisioner"})
     assert response.status_code == 200
     data = response.json()
     assert "series" in data

@@ -4,6 +4,7 @@ from sqlmodel import Session
 from domain.cloudwise.application.use_cases.get_dashboard import GetCostsUseCase, GetDashboardUseCase
 from infra.database.repositories.sql_repositories import SQLCostDimsRepository, SQLCostRecordsRepository
 from infra.database.session import get_session
+from infra.http.middleware.easy_auth import AuthUser, get_current_user
 from infra.http.dtos.api_dtos import (
     CloudWiseDashboardDTO,
     CostRecordReadDTO,
@@ -15,7 +16,10 @@ router = APIRouter(prefix="/cloudwise", tags=["cloudwise"])
 
 
 @router.get("/costs", response_model=list[CostRecordReadDTO])
-async def get_costs(session: Session = Depends(get_session)) -> list[CostRecordReadDTO]:
+async def get_costs(
+    session: Session = Depends(get_session),
+    _user: AuthUser = Depends(get_current_user),
+) -> list[CostRecordReadDTO]:
     use_case = GetCostsUseCase(SQLCostRecordsRepository(session))
     records = await use_case.execute()
     return [
@@ -32,7 +36,10 @@ async def get_costs(session: Session = Depends(get_session)) -> list[CostRecordR
 
 
 @router.get("/dashboard", response_model=CloudWiseDashboardDTO)
-async def get_dashboard(session: Session = Depends(get_session)) -> CloudWiseDashboardDTO:
+async def get_dashboard(
+    session: Session = Depends(get_session),
+    _user: AuthUser = Depends(get_current_user),
+) -> CloudWiseDashboardDTO:
     use_case = GetDashboardUseCase(
         SQLCostRecordsRepository(session),
         SQLCostDimsRepository(session),
