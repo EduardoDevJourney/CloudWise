@@ -7,6 +7,8 @@ export const queryKeys = createQueryKeyStore({
   },
   runops: {
     requests: null,
+    templates: null,
+    policy: null,
     status: (id: string) => [id],
   },
 });

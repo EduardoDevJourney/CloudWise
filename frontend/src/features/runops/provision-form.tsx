@@ -4,7 +4,8 @@ import * as v from 'valibot';
 
 import { Button } from '@ui/button';
 import { Input } from '@ui/input';
-import { useCreateProvision } from '@features/runops/hooks';
+import { Select } from '@ui/select';
+import { useCreateProvision, usePolicy, useTemplates } from '@features/runops/hooks';
 import { provisionFormSchema, type ProvisionFormValues } from '@features/runops/schemas';
 
 const defaultValues: ProvisionFormValues = {
@@ -14,8 +15,16 @@ const defaultValues: ProvisionFormValues = {
   location: 'eastus',
 };
 
+function formatError(error: unknown): string {
+  const detail = (error as { detail?: string | string[] })?.detail;
+  if (Array.isArray(detail)) return detail.join(' · ');
+  return detail ?? (error as Error)?.message ?? 'Erro inesperado';
+}
+
 export function ProvisionForm() {
   const mutation = useCreateProvision();
+  const templates = useTemplates();
+  const policy = usePolicy();
   const [lastId, setLastId] = useState<string | null>(null);
 
   const form = useForm({
@@ -41,7 +50,13 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Template</span>
-            <Input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+            <Select value={field.state.value} onChange={(e) => field.handleChange(e.target.value)}>
+              {(templates.data ?? []).map((t) => (
+                <option key={t.slug} value={t.slug}>
+                  {t.name}
+                </option>
+              ))}
+            </Select>
           </label>
         )}
       </form.Field>
@@ -59,7 +74,13 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Ambiente</span>
-            <Input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+            <Select value={field.state.value} onChange={(e) => field.handleChange(e.target.value)}>
+              {(policy.data?.environments ?? []).map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </Select>
           </label>
         )}
       </form.Field>
@@ -68,7 +89,13 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Região</span>
-            <Input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+            <Select value={field.state.value} onChange={(e) => field.handleChange(e.target.value)}>
+              {(policy.data?.locations ?? []).map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
+              ))}
+            </Select>
           </label>
         )}
       </form.Field>
@@ -79,7 +106,7 @@ export function ProvisionForm() {
 
       {lastId ? <p className="text-sm text-slate-600">Solicitação criada: {lastId}</p> : null}
       {mutation.isError ? (
-        <p className="text-sm text-red-600">{(mutation.error as Error).message}</p>
+        <p className="text-sm text-red-600">{formatError(mutation.error)}</p>
       ) : null}
     </form>
   );

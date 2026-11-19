@@ -1,11 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createProvisionRequest } from '@core/api/runops';
-import { runopsRequestsQuery, runopsStatusQuery } from '@core/queries';
+import {
+  runopsPolicyQuery,
+  runopsRequestsQuery,
+  runopsStatusQuery,
+  runopsTemplatesQuery,
+} from '@core/queries';
 import type { ProvisionFormValues } from '@features/runops/schemas';
 
 export function useRunopsRequests() {
   return useQuery(runopsRequestsQuery);
+}
+
+export function useTemplates() {
+  return useQuery(runopsTemplatesQuery);
+}
+
+export function usePolicy() {
+  return useQuery(runopsPolicyQuery);
 }
 
 export function useProvisionStatus(id: string) {

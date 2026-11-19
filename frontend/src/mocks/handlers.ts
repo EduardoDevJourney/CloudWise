@@ -20,6 +20,19 @@ const mockDashboard: CloudWiseDashboardResponse = {
 export const handlers = [
   http.get('/api/v1/cloudwise/dashboard', () => HttpResponse.json(mockDashboard)),
   http.get('/api/v1/cloudwise/costs', () => HttpResponse.json([])),
+  http.get('/api/v1/runops/templates', () =>
+    HttpResponse.json([
+      { id: '1', slug: 'rg-storage', name: 'Resource Group + Storage Account', params_schema: {}, azure_sku: 'Standard_LRS' },
+      { id: '2', slug: 'rg-keyvault', name: 'Resource Group + Key Vault', params_schema: {}, azure_sku: 'standard' },
+    ]),
+  ),
+  http.get('/api/v1/runops/policy', () =>
+    HttpResponse.json({
+      locations: ['eastus', 'eastus2', 'brazilsouth'],
+      environments: ['dev', 'hml', 'prod'],
+      resource_name_pattern: '^[a-z][a-z0-9-]{2,19}$',
+    }),
+  ),
   http.get('/api/v1/runops/requests', () => HttpResponse.json(mockRequests)),
   http.get('/api/v1/runops/status/:id', ({ params }) => {
     const item = mockRequests.find((r) => r.id === params.id);

@@ -1,7 +1,14 @@
 export type ProvisionStatus = 'pending' | 'running' | 'success' | 'failed';
 
+export type PolicyItem = {
+  locations: string[];
+  environments: string[];
+  resource_name_pattern: string;
+};
+
 export type TemplateItem = {
   id: string;
+  slug: string;
   name: string;
   params_schema: Record<string, unknown>;
   azure_sku: string;
@@ -52,6 +59,6 @@ export type CloudWiseDashboardResponse = {
 
 export type FriendlyError = {
   title: string;
-  detail: string;
+  detail: string | string[];
   status: number;
 };
