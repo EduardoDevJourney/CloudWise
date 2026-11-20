@@ -45,8 +45,10 @@ def resource_group_name(resource_name: str, environment: str) -> str:
     return f"rg-{resource_name}-{environment}"
 
 
-def storage_account_name(resource_name: str, environment: str) -> str:
-    return f"sa{resource_name.replace('-', '')[:18]}{environment[:4]}"[:24]
+def storage_account_name(resource_name: str, environment: str, suffix: str) -> str:
+    """3-24 caracteres, só minúsculas e números, único globalmente (sufixo do id do pedido)."""
+    compact = resource_name.replace("-", "")[:12]
+    return f"sa{compact}{environment[:4]}{suffix.replace('-', '')[:6]}".lower()[:24]
 
 
 def key_vault_name(resource_name: str, environment: str, suffix: str) -> str:

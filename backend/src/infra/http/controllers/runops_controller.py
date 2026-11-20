@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlmodel import Session
 
@@ -31,9 +33,11 @@ from infra.http.middleware.easy_auth import (
     get_current_user,
     require_role,
 )
+from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus
 from infra.pulumi.policy_loader import load_policy
 from infra.pulumi.pulumi_service import PulumiService
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/runops", tags=["runops"])
 
 
@@ -50,11 +54,28 @@ def _to_read_dto(request) -> ProvisionRequestReadDTO:
     )
 
 
-async def _run_provision(provision_id: str) -> None:
+async def _mark_failed(provision_id: str, reason: str) -> None:
     with Session(engine) as session:
-        provision_repo = SQLProvisionRequestsRepository(session)
-        use_case = ExecuteProvisionUseCase(provision_repo, PulumiService())
-        await use_case.execute(provision_id)
+        repo = SQLProvisionRequestsRepository(session)
+        request = await repo.find_by_id(provision_id)
+        if request is not None and request.status in (ProvisionStatus.PENDING, ProvisionStatus.RUNNING):
+            request.fail(reason)
+            await repo.save(request)
+
+
+async def _run_provision(provision_id: str) -> None:
+    # Tarefa em segundo plano: nenhuma exceção pode escapar nem deixar o pedido em RUNNING.
+    try:
+        with Session(engine) as session:
+            provision_repo = SQLProvisionRequestsRepository(session)
+            use_case = ExecuteProvisionUseCase(provision_repo, PulumiService())
+            await use_case.execute(provision_id)
+    except Exception as exc:
+        logger.exception("Provision %s crashed", provision_id)
+        try:
+            await _mark_failed(provision_id, f"Internal error: {exc}")
+        except Exception:
+            logger.exception("Could not mark provision %s as FAILED", provision_id)
 
 
 @router.post("/provision", response_model=ProvisionRequestReadDTO, status_code=202)

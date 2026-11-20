@@ -14,15 +14,16 @@ violations = policy.validate_request(resource_name, environment, location)
 if violations:
     raise Exception("Política violada: " + "; ".join(violations))
 
+suffix = request_id.replace("-", "")
 tags = policy.standard_tags(environment, owner, template)
 rg = resource_group.create(resource_name, environment, location, tags)
 
 if template == "rg-storage":
-    sa = storage_account.create(resource_name, environment, rg, tags)
+    sa = storage_account.create(resource_name, environment, suffix, rg, tags)
     pulumi.export("resource_group_name", rg.name)
     pulumi.export("storage_account_name", sa.name)
 elif template == "rg-keyvault":
-    kv = key_vault.create(resource_name, environment, request_id.replace("-", ""), rg, tags)
+    kv = key_vault.create(resource_name, environment, suffix, rg, tags)
     pulumi.export("resource_group_name", rg.name)
     pulumi.export("key_vault_name", kv.name)
 else:
