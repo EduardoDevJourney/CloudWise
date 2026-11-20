@@ -4,7 +4,7 @@ import { cloudWiseDashboardQuery } from '@core/queries';
 import { CloudWiseDashboard } from '@features/cloudwise/dashboard';
 
 export const Route = createFileRoute('/_main/dashboard')({
-  loader: ({ context }) => context.queryClient.ensureQueryData(cloudWiseDashboardQuery),
+  loader: ({ context }) => context.queryClient.ensureQueryData(cloudWiseDashboardQuery()),
   component: DashboardPage,
 });
 

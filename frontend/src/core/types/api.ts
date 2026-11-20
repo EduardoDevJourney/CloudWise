@@ -12,6 +12,7 @@ export type TemplateItem = {
   name: string;
   params_schema: Record<string, unknown>;
   azure_sku: string;
+  description: string;
 };
 
 export type ProvisionRequestCreate = {
@@ -29,7 +30,9 @@ export type ProvisionRequestRead = {
   request_data: ProvisionRequestCreate;
   error_message: string | null;
   created_at: string;
-  execution_time: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  execution_seconds: number | null;
 };
 
 export type CostRecordItem = {
@@ -61,4 +64,29 @@ export type FriendlyError = {
   title: string;
   detail: string | string[];
   status: number;
+};
+
+export type CostFilters = {
+  service?: string;
+  start?: string;
+  end?: string;
+  subscription_id?: string;
+};
+
+export type UserRole = 'runops.viewer' | 'runops.provisioner' | 'runops.admin';
+
+export type MeItem = {
+  id: string;
+  email: string;
+  role: UserRole;
+};
+
+export type UserItem = MeItem & {
+  active: boolean;
+  created_at: string;
+};
+
+export type UserUpdate = {
+  role?: UserRole;
+  active?: boolean;
 };

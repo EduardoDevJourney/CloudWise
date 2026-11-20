@@ -42,4 +42,8 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ['**/*.test.{ts,tsx}'],
+    rules: { 'boundaries/element-types': 'off' },
+  },
 );

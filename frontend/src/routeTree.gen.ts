@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MainRouteImport } from './routes/_main'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MainUsersRouteImport } from './routes/_main.users'
 import { Route as MainRunopsRouteImport } from './routes/_main.runops'
 import { Route as MainDashboardRouteImport } from './routes/_main.dashboard'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MainUsersRoute = MainUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainRunopsRoute = MainRunopsRouteImport.update({
   id: '/runops',
@@ -38,11 +44,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof MainDashboardRoute
   '/runops': typeof MainRunopsRoute
+  '/users': typeof MainUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof MainDashboardRoute
   '/runops': typeof MainRunopsRoute
+  '/users': typeof MainUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +58,20 @@ export interface FileRoutesById {
   '/_main': typeof MainRouteWithChildren
   '/_main/dashboard': typeof MainDashboardRoute
   '/_main/runops': typeof MainRunopsRoute
+  '/_main/users': typeof MainUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/runops'
+  fullPaths: '/' | '/dashboard' | '/runops' | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/runops'
-  id: '__root__' | '/' | '/_main' | '/_main/dashboard' | '/_main/runops'
+  to: '/' | '/dashboard' | '/runops' | '/users'
+  id:
+    | '__root__'
+    | '/'
+    | '/_main'
+    | '/_main/dashboard'
+    | '/_main/runops'
+    | '/_main/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_main/users': {
+      id: '/_main/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof MainUsersRouteImport
+      parentRoute: typeof MainRoute
+    }
     '/_main/runops': {
       id: '/_main/runops'
       path: '/runops'
@@ -100,11 +122,13 @@ declare module '@tanstack/react-router' {
 interface MainRouteChildren {
   MainDashboardRoute: typeof MainDashboardRoute
   MainRunopsRoute: typeof MainRunopsRoute
+  MainUsersRoute: typeof MainUsersRoute
 }
 
 const MainRouteChildren: MainRouteChildren = {
   MainDashboardRoute: MainDashboardRoute,
   MainRunopsRoute: MainRunopsRoute,
+  MainUsersRoute: MainUsersRoute,
 }
 
 const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)

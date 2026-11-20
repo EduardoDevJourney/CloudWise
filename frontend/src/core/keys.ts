@@ -2,8 +2,12 @@ import { createQueryKeyStore } from '@lukemorales/query-key-factory';
 
 export const queryKeys = createQueryKeyStore({
   cloudwise: {
-    costs: null,
-    dashboard: null,
+    costs: (filters: object) => [filters],
+    dashboard: (filters: object) => [filters],
+  },
+  auth: {
+    me: null,
+    users: null,
   },
   runops: {
     requests: null,

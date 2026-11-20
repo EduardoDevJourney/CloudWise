@@ -2,6 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
 import * as v from 'valibot';
 
+import { describeError } from '@core/errors';
 import { Button } from '@ui/button';
 import { Input } from '@ui/input';
 import { Select } from '@ui/select';
@@ -15,12 +16,6 @@ const defaultValues: ProvisionFormValues = {
   location: 'eastus',
 };
 
-function formatError(error: unknown): string {
-  const detail = (error as { detail?: string | string[] })?.detail;
-  if (Array.isArray(detail)) return detail.join(' · ');
-  return detail ?? (error as Error)?.message ?? 'Erro inesperado';
-}
-
 export function ProvisionForm() {
   const mutation = useCreateProvision();
   const templates = useTemplates();
@@ -31,8 +26,13 @@ export function ProvisionForm() {
     defaultValues,
     onSubmit: async ({ value }) => {
       const parsed = v.parse(provisionFormSchema, value);
-      const result = await mutation.mutateAsync(parsed);
-      setLastId(result.id);
+      try {
+        const result = await mutation.mutateAsync(parsed);
+        setLastId(result.id);
+      } catch {
+        // O erro (ex.: 422 de política) é exibido via mutation.error abaixo.
+        setLastId(null);
+      }
     },
   });
 
@@ -106,7 +106,7 @@ export function ProvisionForm() {
 
       {lastId ? <p className="text-sm text-slate-600">Solicitação criada: {lastId}</p> : null}
       {mutation.isError ? (
-        <p className="text-sm text-red-600">{formatError(mutation.error)}</p>
+        <p className="text-sm text-red-600">{describeError(mutation.error)}</p>
       ) : null}
     </form>
   );

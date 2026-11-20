@@ -1,15 +1,17 @@
 import { createContext, useContext } from 'react';
 
+import type { UserRole } from '@core/types/api';
+
 export type AuthSession = {
   userId: string;
   email: string;
-  roles: string[];
+  role: UserRole;
 };
 
 export const AuthContext = createContext<AuthSession>({
-  userId: 'dev-user',
-  email: 'dev-user@local',
-  roles: ['runops.provisioner'],
+  userId: '',
+  email: '',
+  role: 'runops.viewer',
 });
 
 export function useAuth() {

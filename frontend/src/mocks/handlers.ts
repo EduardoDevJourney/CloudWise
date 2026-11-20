@@ -1,8 +1,18 @@
 import { http, HttpResponse } from 'msw';
 
-import type { CloudWiseDashboardResponse, ProvisionRequestRead } from '@core/types/api';
+import type {
+  CloudWiseDashboardResponse,
+  ProvisionRequestRead,
+  UserItem,
+  UserUpdate,
+} from '@core/types/api';
 
 const mockRequests: ProvisionRequestRead[] = [];
+
+const mockUsers: UserItem[] = [
+  { id: 'dev-user', email: 'dev-user@dev.local', role: 'runops.admin', active: true, created_at: '2026-06-01T10:00:00Z' },
+  { id: 'ana', email: 'ana@corp.com', role: 'runops.viewer', active: true, created_at: '2026-06-02T10:00:00Z' },
+]
 
 const mockDashboard: CloudWiseDashboardResponse = {
   granularity: 'day',
@@ -18,12 +28,20 @@ const mockDashboard: CloudWiseDashboardResponse = {
 };
 
 export const handlers = [
+  http.get('/api/v1/me', () => HttpResponse.json({ id: 'dev-user', email: 'dev-user@dev.local', role: 'runops.admin' })),
+  http.get('/api/v1/users', () => HttpResponse.json(mockUsers)),
+  http.patch('/api/v1/users/:id', async ({ params, request }) => {
+    const user = mockUsers.find((u) => u.id === params.id);
+    if (!user) return new HttpResponse(null, { status: 404 });
+    Object.assign(user, (await request.json()) as UserUpdate);
+    return HttpResponse.json(user);
+  }),
   http.get('/api/v1/cloudwise/dashboard', () => HttpResponse.json(mockDashboard)),
   http.get('/api/v1/cloudwise/costs', () => HttpResponse.json([])),
   http.get('/api/v1/runops/templates', () =>
     HttpResponse.json([
-      { id: '1', slug: 'rg-storage', name: 'Resource Group + Storage Account', params_schema: {}, azure_sku: 'Standard_LRS' },
-      { id: '2', slug: 'rg-keyvault', name: 'Resource Group + Key Vault', params_schema: {}, azure_sku: 'standard' },
+      { id: '1', slug: 'rg-storage', name: 'Resource Group + Storage Account', description: 'RG com Storage', params_schema: {}, azure_sku: 'Standard_LRS' },
+      { id: '2', slug: 'rg-keyvault', name: 'Resource Group + Key Vault', description: 'RG com Key Vault', params_schema: {}, azure_sku: 'standard' },
     ]),
   ),
   http.get('/api/v1/runops/policy', () =>
@@ -54,7 +72,9 @@ export const handlers = [
       request_data: body,
       error_message: null,
       created_at: new Date().toISOString(),
-      execution_time: null,
+      started_at: null,
+      finished_at: null,
+      execution_seconds: null,
     };
     mockRequests.unshift(created);
     return HttpResponse.json(created, { status: 202 });

@@ -18,6 +18,7 @@ export function RequestList() {
             <th className="px-4 py-3">Template</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3">Criado em</th>
+            <th className="px-4 py-3">Duração</th>
           </tr>
         </thead>
         <tbody>
@@ -29,6 +30,9 @@ export function RequestList() {
                 <StatusBadge status={item.status} />
               </td>
               <td className="px-4 py-3">{new Date(item.created_at).toLocaleString('pt-BR')}</td>
+              <td className="px-4 py-3">
+                {item.execution_seconds === null ? '—' : `${item.execution_seconds}s`}
+              </td>
             </tr>
           ))}
         </tbody>
