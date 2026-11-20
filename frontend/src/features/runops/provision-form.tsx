@@ -22,9 +22,14 @@ export function ProvisionForm() {
   const policy = usePolicy();
   const [lastId, setLastId] = useState<string | null>(null);
 
+  // O padrão vem da política do servidor (fonte única das regras).
+  const namePattern = policy.data ? new RegExp(policy.data.resource_name_pattern) : null;
+  const catalogLoading = templates.isLoading || policy.isLoading;
+
   const form = useForm({
     defaultValues,
     onSubmit: async ({ value }) => {
+      if (namePattern && !namePattern.test(value.resource_name)) return;
       const parsed = v.parse(provisionFormSchema, value);
       try {
         const result = await mutation.mutateAsync(parsed);
@@ -50,7 +55,12 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Template</span>
-            <Select value={field.state.value} onChange={(e) => field.handleChange(e.target.value)}>
+            <Select
+              value={field.state.value}
+              disabled={catalogLoading}
+              onChange={(e) => field.handleChange(e.target.value)}
+            >
+              {catalogLoading ? <option>Carregando...</option> : null}
               {(templates.data ?? []).map((t) => (
                 <option key={t.slug} value={t.slug}>
                   {t.name}
@@ -65,7 +75,22 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Nome do recurso</span>
-            <Input value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+            <Input
+              value={field.state.value}
+              aria-describedby="resource-name-hint"
+              aria-invalid={Boolean(field.state.value && namePattern && !namePattern.test(field.state.value))}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
+            <span
+              id="resource-name-hint"
+              className={
+                field.state.value && namePattern && !namePattern.test(field.state.value)
+                  ? 'block text-xs text-red-600'
+                  : 'block text-xs text-slate-500'
+              }
+            >
+              3 a 20 caracteres: minúsculas, números e hífen, começando por letra.
+            </span>
           </label>
         )}
       </form.Field>
@@ -74,7 +99,11 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Ambiente</span>
-            <Select value={field.state.value} onChange={(e) => field.handleChange(e.target.value)}>
+            <Select
+              value={field.state.value}
+              disabled={catalogLoading}
+              onChange={(e) => field.handleChange(e.target.value)}
+            >
               {(policy.data?.environments ?? []).map((e) => (
                 <option key={e} value={e}>
                   {e}
@@ -89,7 +118,11 @@ export function ProvisionForm() {
         {(field) => (
           <label className="block space-y-1 text-sm">
             <span>Região</span>
-            <Select value={field.state.value} onChange={(e) => field.handleChange(e.target.value)}>
+            <Select
+              value={field.state.value}
+              disabled={catalogLoading}
+              onChange={(e) => field.handleChange(e.target.value)}
+            >
               {(policy.data?.locations ?? []).map((l) => (
                 <option key={l} value={l}>
                   {l}

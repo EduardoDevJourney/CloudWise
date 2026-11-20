@@ -40,11 +40,32 @@ describe('ProvisionForm', () => {
     renderWithClient(<ProvisionForm />);
     await screen.findByRole('option', { name: 'eastus2' });
 
-    await user.type(screen.getByRole('textbox'), 'ab');
+    await user.type(screen.getByRole('textbox'), 'nome-valido');
     await user.click(screen.getByRole('button', { name: 'Provisionar' }));
 
     await waitFor(() =>
       expect(screen.getByText(/resource_name inválido · location deve ser uma de: eastus/)).toBeInTheDocument(),
     );
+  });
+
+  it('mostra a dica do nome e não envia nome fora do padrão', async () => {
+    let posted = false;
+    server.use(
+      http.post('/api/v1/runops/provision', () => {
+        posted = true;
+        return HttpResponse.json({}, { status: 202 });
+      }),
+    );
+    const user = userEvent.setup();
+    renderWithClient(<ProvisionForm />);
+    await screen.findByRole('option', { name: 'eastus2' });
+
+    expect(screen.getByText(/3 a 20 caracteres: minúsculas, números e hífen/)).toBeInTheDocument();
+
+    await user.type(screen.getByRole('textbox'), 'AB');
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
+
+    expect(posted).toBe(false);
   });
 });

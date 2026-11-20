@@ -1,21 +1,43 @@
 
  RUN  v5.1.1 /home/eduardo-pc/tcc/CloudWise/frontend
 
- ✓ src/core/auth-provider.test.tsx > AuthProvider > expõe usuário e papel vindos de /me 53ms
- ✓ src/core/auth-provider.test.tsx > AuthProvider > mostra tela de não autenticado em 401 12ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > monta a série diária arredondada 3ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > soma por serviço em ordem decrescente 1ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > formata rótulos 0ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > lida com série vazia 0ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status pending tem rótulo Pendente e cor própria 31ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status running tem rótulo Executando e cor própria 3ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status success tem rótulo Sucesso e cor própria 4ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status failed tem rótulo Falhou e cor própria 3ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > expõe usuário e papel vindos de /me 59ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > mostra tela de não autenticado em 401 13ms
  ✓ src/core/auth-provider.test.tsx > AuthProvider > mostra tela de acesso bloqueado em 403 10ms
- ✓ src/features/runops/request-list.test.tsx > RequestList > mostra estado vazio 62ms
- ✓ src/features/runops/request-list.test.tsx > RequestList > mostra status e duração da execução 26ms
- ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > envia os filtros escolhidos para a API 147ms
- ✓ src/features/users/user-table.test.tsx > UserTable > lista usuários e impede o admin de alterar a si mesmo 110ms
- ✓ src/features/users/user-table.test.tsx > UserTable > troca o papel de outro usuário 47ms
- ✓ src/features/users/user-table.test.tsx > UserTable > bloqueia e desbloqueia um usuário 36ms
- ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > monta os selects de template, ambiente e região a partir da API 131ms
- ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra o id da solicitação criada 94ms
- ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra as violações de política devolvidas com 422 42ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra estado vazio 58ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra status e duração da execução 28ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra os recursos criados no sucesso 18ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra a mensagem de erro quando falha 43ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > lista usuários e impede o admin de alterar a si mesmo 132ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > troca o papel de outro usuário 51ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > bloqueia e desbloqueia um usuário 32ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > monta os selects de template, ambiente e região a partir da API 157ms
+stderr | src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > mostra os gráficos de custo por dia e por serviço
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
 
- Test Files  5 passed (5)
-      Tests  12 passed (12)
-   Start at  16:29:19
-   Duration  903ms (environment 41%, tests 24%, setup 17%, import 15%, transform 3%, worker 1%)
+ ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > envia os filtros escolhidos para a API 133ms
+ ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > mostra os gráficos de custo por dia e por serviço 20ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra o id da solicitação criada 104ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra as violações de política devolvidas com 422 69ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra a dica do nome e não envia nome fora do padrão 45ms
+
+ Test Files  7 passed (7)
+      Tests  24 passed (24)
+   Start at  19:10:27
+   Duration  1.14s (environment 46%, tests 19%, setup 18%, import 14%, transform 3%, worker 1%)
 

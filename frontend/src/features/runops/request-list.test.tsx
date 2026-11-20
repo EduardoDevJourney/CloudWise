@@ -41,9 +41,9 @@ describe('RequestList', () => {
     );
     renderWithClient(<RequestList />);
 
-    expect(await screen.findByText('success')).toBeInTheDocument();
+    expect(await screen.findByText('Sucesso')).toBeInTheDocument();
     expect(screen.getByText('42.5s')).toBeInTheDocument();
-    expect(screen.getByText('running')).toBeInTheDocument();
+    expect(screen.getByText('Executando')).toBeInTheDocument();
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);
   });
 
