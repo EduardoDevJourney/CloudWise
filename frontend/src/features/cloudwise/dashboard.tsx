@@ -1,5 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { cloudWiseCostsQuery, cloudWiseDashboardQuery } from '@core/queries';
 import { describeError } from '@core/errors';
@@ -8,6 +19,14 @@ import { Button } from '@ui/button';
 import { Input } from '@ui/input';
 import { Loading } from '@ui/loading';
 import { Select } from '@ui/select';
+import {
+  shortDate,
+  shortService,
+  toDailyPoints,
+  toServicePoints,
+} from '@features/cloudwise/chart-data';
+
+const usd = (value: number) => `$${value.toFixed(2)}`;
 
 export function CloudWiseDashboard() {
   const [filters, setFilters] = useState<CostFilters>({});
@@ -94,21 +113,43 @@ export function CloudWiseDashboard() {
             </article>
           </section>
 
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">Série diária</h2>
-            {data.series.length === 0 ? (
-              <p className="text-sm text-slate-500">Sem dados para o filtro selecionado.</p>
-            ) : (
-              <div className="space-y-2">
-                {data.series.map((day) => (
-                  <div key={day.date} className="flex items-center justify-between text-sm">
-                    <span>{day.date}</span>
-                    <span className="font-medium">${day.total_cost.toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+          {data.series.length === 0 ? (
+            <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
+              Sem dados para o filtro selecionado.
+            </p>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 className="mb-4 text-lg font-semibold">Custo por dia</h2>
+                <div className="h-64" data-testid="chart-daily">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={toDailyPoints(data.series)}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="date" tickFormatter={shortDate} fontSize={12} />
+                      <YAxis tickFormatter={usd} fontSize={12} width={64} />
+                      <Tooltip formatter={(value) => usd(Number(value))} />
+                      <Line type="monotone" dataKey="total" name="Custo" stroke="#2563eb" strokeWidth={2} dot />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 className="mb-4 text-lg font-semibold">Custo por serviço</h2>
+                <div className="h-64" data-testid="chart-services">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={toServicePoints(data.series)}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="service" tickFormatter={shortService} fontSize={12} />
+                      <YAxis tickFormatter={usd} fontSize={12} width={64} />
+                      <Tooltip formatter={(value) => usd(Number(value))} />
+                      <Bar dataKey="total" name="Custo" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </section>
+            </div>
+          )}
         </>
       ) : null}
     </div>
