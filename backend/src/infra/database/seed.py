@@ -23,12 +23,14 @@ TEMPLATES = [
         "name": "Resource Group + Storage Account",
         "azure_sku": "Standard_LRS",
         "slug": "rg-storage",
+        "description": "Resource Group com Storage Account (HTTPS, TLS 1.2, sem acesso público; SKU por ambiente).",
     },
     {
         "id": "00000000-0000-4000-8000-000000000002",
         "name": "Resource Group + Key Vault",
         "azure_sku": "standard",
         "slug": "rg-keyvault",
+        "description": "Resource Group com Key Vault (RBAC, soft-delete; purge protection só em prod).",
     },
 ]
 
@@ -38,6 +40,11 @@ def seed_database(session: Session) -> None:
     for template in TEMPLATES:
         if template["slug"] not in existing_slugs:
             session.add(TemplateModel(params_schema=json.dumps(_PARAMS_SCHEMA), **template))
+        else:
+            existing = session.exec(select(TemplateModel).where(TemplateModel.slug == template["slug"])).first()
+            if existing and not existing.description:
+                existing.description = template["description"]
+                session.add(existing)
     session.commit()
 
     if session.exec(select(CostRecordModel)).first():

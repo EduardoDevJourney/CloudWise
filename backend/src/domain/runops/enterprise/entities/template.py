@@ -11,6 +11,7 @@ class Template(Entity):
     params_schema: dict[str, Any]
     azure_sku: str
     slug: str = ""
+    description: str = ""
 
     def __post_init__(self) -> None:
         if not self.slug:

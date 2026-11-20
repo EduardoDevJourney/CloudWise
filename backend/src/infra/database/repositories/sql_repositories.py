@@ -28,7 +28,8 @@ def _to_provision_request(model: ProvisionRequestModel) -> ProvisionRequest:
         request_data=json.loads(model.request_data),
         error_message=model.error_message,
         created_at=model.created_at,
-        execution_time=model.execution_time,
+        started_at=model.started_at,
+        finished_at=model.finished_at,
     )
 
 
@@ -39,6 +40,7 @@ def _to_template(model: TemplateModel) -> Template:
         params_schema=json.loads(model.params_schema),
         azure_sku=model.azure_sku,
         slug=model.slug,
+        description=model.description or "",
     )
 
 
@@ -55,7 +57,8 @@ class SQLProvisionRequestsRepository:
             request_data=json.dumps(request.request_data),
             error_message=request.error_message,
             created_at=request.created_at,
-            execution_time=request.execution_time,
+            started_at=request.started_at,
+            finished_at=request.finished_at,
         )
         self._session.add(model)
         self._session.commit()
@@ -67,7 +70,8 @@ class SQLProvisionRequestsRepository:
             return
         model.status = request.status.value
         model.error_message = request.error_message
-        model.execution_time = request.execution_time
+        model.started_at = request.started_at
+        model.finished_at = request.finished_at
         model.request_data = json.dumps(request.request_data)
         self._session.add(model)
         self._session.commit()
@@ -104,6 +108,7 @@ class SQLTemplatesRepository:
             params_schema=json.dumps(template.params_schema),
             azure_sku=template.azure_sku,
             slug=template.slug or str(template.id),
+            description=template.description,
         )
         self._session.merge(model)
         self._session.commit()

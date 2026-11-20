@@ -22,6 +22,7 @@ class TemplateModel(SQLModel, table=True):
     params_schema: str = Field(sa_column=Column(Text, nullable=False))
     azure_sku: str = Field(sa_column=Column(String(100), nullable=False))
     slug: str = Field(sa_column=Column(String(100), nullable=False, index=True))
+    description: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
 
 
 class ProvisionRequestModel(SQLModel, table=True):
@@ -34,7 +35,8 @@ class ProvisionRequestModel(SQLModel, table=True):
     request_data: str = Field(sa_column=Column(Text, nullable=False))
     error_message: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     created_at: datetime = Field(sa_column=Column(DateTime, nullable=False))
-    execution_time: datetime | None = Field(default=None, sa_column=Column(DateTime, nullable=True))
+    started_at: datetime | None = Field(default=None, sa_column=Column(DateTime, nullable=True))
+    finished_at: datetime | None = Field(default=None, sa_column=Column(DateTime, nullable=True))
 
 
 class CostRecordModel(SQLModel, table=True):

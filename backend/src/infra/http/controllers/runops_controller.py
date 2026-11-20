@@ -11,6 +11,7 @@ from domain.runops.application.use_cases.create_provision_request import (
     CreateProvisionRequestUseCase,
 )
 from domain.runops.application.use_cases.execute_provision import ExecuteProvisionUseCase
+from domain.runops.application.use_cases.list_templates import ListTemplatesUseCase
 from domain.runops.application.use_cases.get_provision_status import (
     GetProvisionStatusUseCase,
     ListProvisionRequestsUseCase,
@@ -50,7 +51,9 @@ def _to_read_dto(request) -> ProvisionRequestReadDTO:
         request_data=request.request_data,
         error_message=request.error_message,
         created_at=request.created_at,
-        execution_time=request.execution_time,
+        started_at=request.started_at,
+        finished_at=request.finished_at,
+        execution_seconds=request.execution_seconds,
     )
 
 
@@ -146,12 +149,13 @@ async def list_templates(
     session: Session = Depends(get_session),
     _user: AuthUser = Depends(get_current_user),
 ) -> list[TemplateReadDTO]:
-    templates = await SQLTemplatesRepository(session).list_all()
+    templates = await ListTemplatesUseCase(SQLTemplatesRepository(session)).execute()
     return [
         TemplateReadDTO(
             id=str(t.id),
             slug=t.slug,
             name=t.name,
+            description=t.description,
             params_schema=t.params_schema,
             azure_sku=t.azure_sku,
         )

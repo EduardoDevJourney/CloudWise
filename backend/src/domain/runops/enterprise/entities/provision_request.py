@@ -22,7 +22,8 @@ class ProvisionRequest(AggregateRoot):
     request_data: dict[str, Any] = field(default_factory=dict)
     error_message: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
-    execution_time: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
 
     @classmethod
     def create(
@@ -47,16 +48,25 @@ class ProvisionRequest(AggregateRoot):
         )
         return request
 
+    @property
+    def execution_seconds(self) -> float | None:
+        if self.started_at is None or self.finished_at is None:
+            return None
+        start = self.started_at.replace(tzinfo=None)
+        end = self.finished_at.replace(tzinfo=None)
+        return round((end - start).total_seconds(), 1)
+
     def start(self) -> None:
         if self.status != ProvisionStatus.PENDING:
             raise ValueError("Only pending requests can be started")
         self.status = ProvisionStatus.RUNNING
+        self.started_at = datetime.now(UTC)
 
     def complete(self) -> None:
         if self.status != ProvisionStatus.RUNNING:
             raise ValueError("Only running requests can be completed")
         self.status = ProvisionStatus.SUCCESS
-        self.execution_time = datetime.now(UTC)
+        self.finished_at = datetime.now(UTC)
         self.add_domain_event(
             ProvisionCompletedEvent(provision_id=str(self.id), user_id=self.user_id)
         )
@@ -66,7 +76,7 @@ class ProvisionRequest(AggregateRoot):
             raise ValueError("Cannot fail a terminal request")
         self.status = ProvisionStatus.FAILED
         self.error_message = reason
-        self.execution_time = datetime.now(UTC)
+        self.finished_at = datetime.now(UTC)
         self.add_domain_event(
             ProvisionFailedEvent(
                 provision_id=str(self.id),

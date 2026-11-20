@@ -19,13 +19,16 @@ class ProvisionRequestReadDTO(BaseModel):
     request_data: dict[str, Any]
     error_message: str | None
     created_at: datetime
-    execution_time: datetime | None
+    started_at: datetime | None
+    finished_at: datetime | None
+    execution_seconds: float | None
 
 
 class TemplateReadDTO(BaseModel):
     id: str
     slug: str
     name: str
+    description: str
     params_schema: dict[str, Any]
     azure_sku: str
 
