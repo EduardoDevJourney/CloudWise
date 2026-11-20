@@ -33,6 +33,7 @@ export type ProvisionRequestRead = {
   started_at: string | null;
   finished_at: string | null;
   execution_seconds: number | null;
+  outputs: Record<string, string>;
 };
 
 export type CostRecordItem = {

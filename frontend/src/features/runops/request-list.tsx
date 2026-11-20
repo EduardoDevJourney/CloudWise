@@ -2,6 +2,28 @@ import { useRunopsRequests } from '@features/runops/hooks';
 import { StatusBadge } from '@ui/badge';
 import { Loading } from '@ui/loading';
 
+const OUTPUT_LABELS: Record<string, string> = {
+  resource_group_name: 'Resource Group',
+  storage_account_name: 'Storage Account',
+  key_vault_name: 'Key Vault',
+};
+
+function CreatedResources({ outputs }: { outputs: Record<string, string> }) {
+  const entries = Object.entries(outputs ?? {});
+  if (entries.length === 0) return <span className="text-slate-400">—</span>;
+
+  return (
+    <dl className="space-y-0.5 text-xs">
+      {entries.map(([key, value]) => (
+        <div key={key} className="flex gap-1">
+          <dt className="text-slate-500">{OUTPUT_LABELS[key] ?? key}:</dt>
+          <dd className="font-mono text-slate-800">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function RequestList() {
   const { data, isLoading, isError, error } = useRunopsRequests();
 
@@ -17,6 +39,7 @@ export function RequestList() {
             <th className="px-4 py-3">ID</th>
             <th className="px-4 py-3">Template</th>
             <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3">Recursos criados</th>
             <th className="px-4 py-3">Criado em</th>
             <th className="px-4 py-3">Duração</th>
           </tr>
@@ -28,6 +51,14 @@ export function RequestList() {
               <td className="px-4 py-3">{item.template_id}</td>
               <td className="px-4 py-3">
                 <StatusBadge status={item.status} />
+                {item.status === 'failed' && item.error_message ? (
+                  <p role="alert" className="mt-1 max-w-xs text-xs text-red-700">
+                    {item.error_message}
+                  </p>
+                ) : null}
+              </td>
+              <td className="px-4 py-3">
+                <CreatedResources outputs={item.outputs} />
               </td>
               <td className="px-4 py-3">{new Date(item.created_at).toLocaleString('pt-BR')}</td>
               <td className="px-4 py-3">

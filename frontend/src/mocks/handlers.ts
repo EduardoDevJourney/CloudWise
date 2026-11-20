@@ -75,6 +75,7 @@ export const handlers = [
       started_at: null,
       finished_at: null,
       execution_seconds: null,
+      outputs: {},
     };
     mockRequests.unshift(created);
     return HttpResponse.json(created, { status: 202 });
