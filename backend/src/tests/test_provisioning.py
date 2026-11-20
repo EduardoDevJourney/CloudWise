@@ -15,6 +15,7 @@ class SuccessRunner:
 
     async def up(self, stack_name, config):
         SuccessRunner.calls.append((stack_name, config))
+        return {"resource_group_name": "rg-fake-run-dev", "storage_account_name": "safakerundev1234"}
 
 
 class FailingRunner:
@@ -36,6 +37,10 @@ async def test_background_run_marks_success(client: AsyncClient, login, monkeypa
     assert body["status"] == "success"
     stack, config = SuccessRunner.calls[-1]
     assert stack == f"provision-{body['id']}" and config["owner"] == "runner-ok"
+    assert body["outputs"] == {
+        "resource_group_name": "rg-fake-run-dev",
+        "storage_account_name": "safakerundev1234",
+    }
 
 
 @pytest.mark.asyncio
@@ -76,3 +81,29 @@ def test_storage_account_name_is_valid_and_unique_per_request():
     b = policy.storage_account_name("my-long-resource-nm", "prod", "9999ffff-0000")
     assert a != b
     assert 3 <= len(a) <= 24 and a.isalnum() and a == a.lower()
+
+
+class VerboseFailingRunner:
+    async def up(self, stack_name, config):
+        raise RuntimeError(
+            "update failed\n" + "diagnostics: lots of noise\n" * 40
+            + "error: Code=\"InvalidResourceName\" Message=\"name already taken\"\n"
+            + "error: Code=\"InvalidResourceName\" Message=\"name already taken\"\n"
+        )
+
+
+@pytest.mark.asyncio
+async def test_long_pulumi_error_is_summarized(client: AsyncClient, login, monkeypatch):
+    monkeypatch.setattr(f"{CTRL}.PulumiService", VerboseFailingRunner)
+    body = await _create_and_get(client, login, "runner-verbose")
+    assert body["status"] == "failed"
+    assert body["error_message"] == 'error: Code="InvalidResourceName" Message="name already taken"'
+    assert body["outputs"] == {}
+
+
+def test_summarize_error_truncates_and_has_fallback():
+    from domain.runops.application.errors.summarize_error import MAX_LENGTH, summarize_error
+
+    assert len(summarize_error("error: " + "x" * 2000)) == MAX_LENGTH
+    assert summarize_error("a\nb\nc\nd\ne") == "c | d | e"
+    assert summarize_error("") == "Falha desconhecida no provisionamento"

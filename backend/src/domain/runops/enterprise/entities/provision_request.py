@@ -24,6 +24,7 @@ class ProvisionRequest(AggregateRoot):
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     started_at: datetime | None = None
     finished_at: datetime | None = None
+    outputs: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def create(
@@ -62,10 +63,11 @@ class ProvisionRequest(AggregateRoot):
         self.status = ProvisionStatus.RUNNING
         self.started_at = datetime.now(UTC)
 
-    def complete(self) -> None:
+    def complete(self, outputs: dict[str, Any] | None = None) -> None:
         if self.status != ProvisionStatus.RUNNING:
             raise ValueError("Only running requests can be completed")
         self.status = ProvisionStatus.SUCCESS
+        self.outputs = outputs or {}
         self.finished_at = datetime.now(UTC)
         self.add_domain_event(
             ProvisionCompletedEvent(provision_id=str(self.id), user_id=self.user_id)

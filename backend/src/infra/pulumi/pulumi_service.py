@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import sys
 from pathlib import Path
@@ -7,6 +8,8 @@ from typing import Any
 from infra.config import get_settings
 
 # pulumi_service.py -> pulumi -> infra -> src -> backend -> <raiz do repositorio>
+logger = logging.getLogger(__name__)
+
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PULUMI_PROJECT_DIR = REPO_ROOT / "infra" / "pulumi"
 
@@ -15,8 +18,8 @@ class PulumiService:
     def __init__(self) -> None:
         self._settings = get_settings()
 
-    async def up(self, stack_name: str, config: dict[str, Any]) -> None:
-        await asyncio.to_thread(self._run_up, stack_name, config)
+    async def up(self, stack_name: str, config: dict[str, Any]) -> dict[str, Any]:
+        return await asyncio.to_thread(self._run_up, stack_name, config)
 
     def _state_dir(self) -> Path:
         state_dir = Path(self._settings.pulumi_state_dir)
@@ -41,7 +44,7 @@ class PulumiService:
             "PATH": os.environ.get("PATH", ""),
         }
 
-    def _run_up(self, stack_name: str, config: dict[str, Any]) -> None:
+    def _run_up(self, stack_name: str, config: dict[str, Any]) -> dict[str, Any]:
         import pulumi.automation as auto
 
         missing = [
@@ -65,4 +68,5 @@ class PulumiService:
         stack.set_config("owner", auto.ConfigValue(value=config.get("owner", "unknown")))
         stack.set_config("request_id", auto.ConfigValue(value=config.get("request_id", "0000")))
 
-        stack.up(on_output=lambda msg: None)
+        result = stack.up(on_output=lambda msg: logger.info("pulumi[%s] %s", stack_name, msg.rstrip()))
+        return {name: output.value for name, output in result.outputs.items()}

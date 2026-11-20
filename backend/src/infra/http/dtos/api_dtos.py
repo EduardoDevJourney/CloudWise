@@ -22,6 +22,7 @@ class ProvisionRequestReadDTO(BaseModel):
     started_at: datetime | None
     finished_at: datetime | None
     execution_seconds: float | None
+    outputs: dict[str, Any]
 
 
 class TemplateReadDTO(BaseModel):

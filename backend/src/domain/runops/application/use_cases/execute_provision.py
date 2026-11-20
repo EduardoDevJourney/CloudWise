@@ -3,6 +3,7 @@ from typing import Any, Protocol
 from core.either import Either, Left, Right
 from core.events.domain_events import DomainEvents
 from domain.runops.application.errors.resource_not_found_error import ResourceNotFoundError
+from domain.runops.application.errors.summarize_error import summarize_error
 from domain.runops.application.repositories.provision_requests_repository import (
     ProvisionRequestsRepository,
 )
@@ -10,7 +11,7 @@ from domain.runops.enterprise.entities.provision_request import ProvisionRequest
 
 
 class PulumiRunner(Protocol):
-    async def up(self, stack_name: str, config: dict[str, Any]) -> None: ...
+    async def up(self, stack_name: str, config: dict[str, Any]) -> dict[str, Any]: ...
 
 
 class ExecuteProvisionUseCase:
@@ -31,7 +32,7 @@ class ExecuteProvisionUseCase:
             request.start()
             await self._provision_repo.save(request)
 
-            await self._pulumi_runner.up(
+            outputs = await self._pulumi_runner.up(
                 stack_name=f"provision-{provision_id}",
                 config={
                     **request.request_data,
@@ -40,9 +41,9 @@ class ExecuteProvisionUseCase:
                 },
             )
 
-            request.complete()
+            request.complete(outputs)
         except Exception as exc:
-            request.fail(str(exc))
+            request.fail(summarize_error(str(exc)))
 
         await self._provision_repo.save(request)
         events = request.clear_domain_events()

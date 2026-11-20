@@ -35,6 +35,7 @@ class ProvisionRequestModel(SQLModel, table=True):
     request_data: str = Field(sa_column=Column(Text, nullable=False))
     error_message: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     created_at: datetime = Field(sa_column=Column(DateTime, nullable=False))
+    outputs: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     started_at: datetime | None = Field(default=None, sa_column=Column(DateTime, nullable=True))
     finished_at: datetime | None = Field(default=None, sa_column=Column(DateTime, nullable=True))
 

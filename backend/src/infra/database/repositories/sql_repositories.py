@@ -30,6 +30,7 @@ def _to_provision_request(model: ProvisionRequestModel) -> ProvisionRequest:
         created_at=model.created_at,
         started_at=model.started_at,
         finished_at=model.finished_at,
+        outputs=json.loads(model.outputs) if model.outputs else {},
     )
 
 
@@ -59,6 +60,7 @@ class SQLProvisionRequestsRepository:
             created_at=request.created_at,
             started_at=request.started_at,
             finished_at=request.finished_at,
+            outputs=json.dumps(request.outputs),
         )
         self._session.add(model)
         self._session.commit()
@@ -72,6 +74,7 @@ class SQLProvisionRequestsRepository:
         model.error_message = request.error_message
         model.started_at = request.started_at
         model.finished_at = request.finished_at
+        model.outputs = json.dumps(request.outputs)
         model.request_data = json.dumps(request.request_data)
         self._session.add(model)
         self._session.commit()

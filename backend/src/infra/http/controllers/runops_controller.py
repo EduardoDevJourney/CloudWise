@@ -54,6 +54,7 @@ def _to_read_dto(request) -> ProvisionRequestReadDTO:
         started_at=request.started_at,
         finished_at=request.finished_at,
         execution_seconds=request.execution_seconds,
+        outputs=request.outputs,
     )
 
 
