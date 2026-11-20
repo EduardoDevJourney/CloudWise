@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 from core.entities.unique_entity_id import UniqueEntityId
 from domain.cloudwise.enterprise.entities.cost_dim import CostDim
 from domain.cloudwise.enterprise.entities.cost_record import CostRecord
+from domain.auth.enterprise.entities.user import User
 from domain.runops.enterprise.entities.provision_request import ProvisionRequest
 from domain.runops.enterprise.entities.template import Template
 from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus
@@ -14,6 +15,7 @@ from infra.database.sqlmodel.models import (
     CostRecordModel,
     ProvisionRequestModel,
     TemplateModel,
+    UserModel,
 )
 
 
@@ -166,4 +168,32 @@ class SQLCostDimsRepository:
                     service_name=dim.service_name,
                 )
             )
+        self._session.commit()
+
+
+class SQLUsersRepository:
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    @staticmethod
+    def _to_user(m: UserModel) -> User:
+        return User(id=m.id, email=m.email, role=m.role, active=m.active, created_at=m.created_at)
+
+    async def find_by_id(self, user_id: str) -> User | None:
+        model = self._session.get(UserModel, user_id)
+        return self._to_user(model) if model else None
+
+    async def list_all(self) -> list[User]:
+        return [self._to_user(m) for m in self._session.exec(select(UserModel)).all()]
+
+    async def save(self, user: User) -> None:
+        self._session.merge(
+            UserModel(
+                id=user.id,
+                email=user.email,
+                role=user.role,
+                active=user.active,
+                created_at=user.created_at,
+            )
+        )
         self._session.commit()

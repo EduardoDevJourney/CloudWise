@@ -32,7 +32,7 @@ export async function httpResource<T>(input: RequestInfo, init?: RequestInit): P
   headers.set('Content-Type', 'application/json');
   headers.set('Accept', 'application/json');
   headers.set('X-Dev-User-Id', 'dev-user');
-  headers.set('X-Dev-User-Roles', 'runops.provisioner');
+  headers.set('X-Dev-User-Email', 'dev-user@dev.local');
 
   const response = await fetch(input, { ...init, headers });
 

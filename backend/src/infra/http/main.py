@@ -8,6 +8,7 @@ from infra.config import get_settings
 from infra.database.seed import seed_database
 from infra.database.session import create_db_and_tables, engine
 from infra.events.subscribers.logging_subscriber import register_subscribers
+from infra.http.controllers.auth_controller import router as auth_router
 from infra.http.controllers.cloudwise_controller import router as cloudwise_router
 from infra.http.controllers.health_controller import router as health_router
 from infra.http.controllers.runops_controller import router as runops_router
@@ -35,6 +36,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(health_router, prefix="/api/v1")
+    app.include_router(auth_router, prefix="/api/v1")
     app.include_router(runops_router, prefix="/api/v1")
     app.include_router(cloudwise_router, prefix="/api/v1")
     return app

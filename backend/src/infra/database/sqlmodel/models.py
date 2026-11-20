@@ -2,7 +2,7 @@ import json
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import Column, Date, DateTime, Float, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, String, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -55,3 +55,13 @@ class CostDimModel(SQLModel, table=True):
     record_date: date = Field(sa_column=Column(Date, nullable=False, index=True))
     category: str = Field(sa_column=Column(String(100), nullable=False))
     service_name: str = Field(sa_column=Column(String(255), nullable=False))
+
+
+class UserModel(SQLModel, table=True):
+    __tablename__ = "users"
+
+    id: str = Field(sa_column=Column(String(128), primary_key=True))
+    email: str = Field(sa_column=Column(String(255), nullable=False, index=True))
+    role: str = Field(sa_column=Column(String(64), nullable=False))
+    active: bool = Field(default=True, sa_column=Column(Boolean, nullable=False))
+    created_at: datetime = Field(sa_column=Column(DateTime, nullable=False))

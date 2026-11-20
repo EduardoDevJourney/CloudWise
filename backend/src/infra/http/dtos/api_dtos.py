@@ -65,3 +65,22 @@ class PolicyReadDTO(BaseModel):
     locations: list[str]
     environments: list[str]
     resource_name_pattern: str
+
+
+class MeDTO(BaseModel):
+    id: str
+    email: str
+    role: str
+
+
+class UserReadDTO(BaseModel):
+    id: str
+    email: str
+    role: str
+    active: bool
+    created_at: datetime
+
+
+class UserUpdateDTO(BaseModel):
+    role: str | None = None
+    active: bool | None = None

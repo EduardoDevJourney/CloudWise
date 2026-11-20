@@ -5,11 +5,13 @@ from dataclasses import dataclass
 from collections.abc import Callable
 
 from fastapi import Depends, HTTPException, Request
+from sqlmodel import Session
 
+from domain.auth.application.use_cases.manage_users import ResolveUserUseCase
+from domain.auth.roles import ROLE_ADMIN, ROLE_PROVISIONER, ROLE_VIEWER  # noqa: F401
 from infra.config import get_settings
-
-ROLE_PROVISIONER = "runops.provisioner"
-ROLE_ADMIN = "runops.admin"
+from infra.database.repositories.sql_repositories import SQLUsersRepository
+from infra.database.session import get_session
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,11 +28,10 @@ def _parse_principal_header(request: Request) -> AuthUser | None:
     try:
         payload = json.loads(base64.b64decode(principal_b64))
         claims = {c["typ"]: c["val"] for c in payload.get("claims", [])}
-        roles = [c["val"] for c in payload.get("claims", []) if c.get("typ") == "roles"]
         return AuthUser(
             user_id=claims.get("oid", claims.get("sub", "unknown")),
             email=claims.get("preferred_username", claims.get("email", "")),
-            roles=roles,
+            roles=[],
         )
     except (json.JSONDecodeError, KeyError, ValueError):
         return None
@@ -43,18 +44,25 @@ def _parse_dev_headers(request: Request) -> AuthUser | None:
     if not user_id:
         return None
     email = request.headers.get("X-Dev-User-Email", f"{user_id}@dev.local")
-    roles_header = request.headers.get("X-Dev-User-Roles", "runops.provisioner")
-    roles = [r.strip() for r in roles_header.split(",") if r.strip()]
-    return AuthUser(user_id=user_id, email=email, roles=roles)
+    return AuthUser(user_id=user_id, email=email, roles=[])
 
 
-def get_current_user(request: Request) -> AuthUser:
-    # O principal vem do Easy Auth do App Service (que valida o token antes
-    # de repassar a requisição). Headers X-Dev-* só valem em desenvolvimento.
-    user = _parse_principal_header(request) or _parse_dev_headers(request)
-    if user is None:
+async def get_current_user(
+    request: Request, session: Session = Depends(get_session)
+) -> AuthUser:
+    # Autenticação: o Easy Auth do App Service valida o token e repassa o principal
+    # (headers X-Dev-* só valem em desenvolvimento). Autorização: o papel vem da
+    # tabela `users` do Cloud Wise; os papéis do token são ignorados.
+    identity = _parse_principal_header(request) or _parse_dev_headers(request)
+    if identity is None:
         raise HTTPException(status_code=401, detail="Authentication required")
-    return user
+    resolver = ResolveUserUseCase(
+        SQLUsersRepository(session), get_settings().admin_emails.split(",")
+    )
+    user = await resolver.execute(identity.user_id, identity.email)
+    if not user.active:
+        raise HTTPException(status_code=403, detail="User blocked")
+    return AuthUser(user_id=user.id, email=user.email, roles=[user.role])
 
 
 def require_role(*allowed: str) -> Callable[[AuthUser], AuthUser]:
