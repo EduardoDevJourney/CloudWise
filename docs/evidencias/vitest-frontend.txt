@@ -1,0 +1,21 @@
+
+ RUN  v5.1.1 /home/eduardo-pc/tcc/CloudWise/frontend
+
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > expõe usuário e papel vindos de /me 53ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > mostra tela de não autenticado em 401 12ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > mostra tela de acesso bloqueado em 403 10ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra estado vazio 62ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra status e duração da execução 26ms
+ ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > envia os filtros escolhidos para a API 147ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > lista usuários e impede o admin de alterar a si mesmo 110ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > troca o papel de outro usuário 47ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > bloqueia e desbloqueia um usuário 36ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > monta os selects de template, ambiente e região a partir da API 131ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra o id da solicitação criada 94ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > mostra as violações de política devolvidas com 422 42ms
+
+ Test Files  5 passed (5)
+      Tests  12 passed (12)
+   Start at  16:29:19
+   Duration  903ms (environment 41%, tests 24%, setup 17%, import 15%, transform 3%, worker 1%)
+

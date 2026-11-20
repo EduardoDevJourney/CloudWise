@@ -1,4 +1,4 @@
-# Smoke Test — Cloud Proxy MVP
+# Smoke Test — Cloud Wise MVP
 
 ## Pré-requisitos
 

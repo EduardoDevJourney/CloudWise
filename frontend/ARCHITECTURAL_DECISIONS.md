@@ -11,4 +11,4 @@
 
 ## Contratos de Dados
 
-Tipos em `core/api/` espelham endpoints do backend Cloud Proxy (RunOps + Cloud Wise).
+Tipos em `core/api/` espelham endpoints do backend Cloud Wise (RunOps + Cloud Wise).

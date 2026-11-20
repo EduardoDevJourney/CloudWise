@@ -21,7 +21,8 @@ dist/
 
 # Environment
 .env
-.env.local
+.env.*
+!.env.example
 
 # Pulumi
 .pulumi/
@@ -45,3 +46,9 @@ htmlcov/
 .coverage
 coverage/
 infra/pulumi/Pulumi.*.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars

@@ -1,4 +1,4 @@
-# Plano Do MVP Cloud Proxy
+# Plano Do MVP Cloud Wise
 
 > Monorepo fullstack: backend Python/FastAPI (DDD), frontend React 19 (TanStack), SQL Server local, Cloud Wise mockado, RunOps com Pulumi na sandbox Azure.
 

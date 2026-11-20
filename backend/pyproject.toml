@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "cloud-wise-backend"
 version = "0.1.0"
-description = "Cloud Proxy API - RunOps & Cloud Wise"
+description = "Cloud Wise API - RunOps & Cloud Wise"
 authors = ["Cloud Wise Team"]
 package-mode = false
 

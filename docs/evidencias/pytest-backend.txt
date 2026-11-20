@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.6.0 -- /home/eduardo-pc/.cache/pypoetry/virtualenvs/cloud-wise-backend-bMwDlz5a-py3.12/bin/python
+cachedir: .pytest_cache
+rootdir: /home/eduardo-pc/tcc/CloudWise/backend
+configfile: pyproject.toml
+testpaths: src/tests
+plugins: anyio-4.14.1, asyncio-0.25.3
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None
+collecting ... collected 32 items
+
+src/tests/test_api.py::test_health PASSED                                [  3%]
+src/tests/test_api.py::test_cloudwise_dashboard PASSED                   [  6%]
+src/tests/test_auth_api.py::test_first_access_registers_user_as_viewer PASSED [  9%]
+src/tests/test_auth_api.py::test_admin_emails_bootstrap_first_admin PASSED [ 12%]
+src/tests/test_auth_api.py::test_token_roles_are_ignored PASSED          [ 15%]
+src/tests/test_auth_api.py::test_viewer_can_read_dashboard_but_not_manage_users PASSED [ 18%]
+src/tests/test_auth_api.py::test_admin_lists_and_changes_role PASSED     [ 21%]
+src/tests/test_auth_api.py::test_blocked_user_gets_403 PASSED            [ 25%]
+src/tests/test_auth_api.py::test_admin_cannot_demote_or_block_self PASSED [ 28%]
+src/tests/test_costs_and_durations.py::test_costs_filter_by_service_and_subscription PASSED [ 31%]
+src/tests/test_costs_and_durations.py::test_costs_filter_by_period_and_invalid_range PASSED [ 34%]
+src/tests/test_costs_and_durations.py::test_dashboard_summary_respects_filters PASSED [ 37%]
+src/tests/test_costs_and_durations.py::test_execution_seconds_is_finish_minus_start PASSED [ 40%]
+src/tests/test_costs_and_durations.py::test_status_exposes_duration_after_run PASSED [ 43%]
+src/tests/test_costs_and_durations.py::test_templates_expose_description_and_params PASSED [ 46%]
+src/tests/test_provisioning.py::test_background_run_marks_success PASSED [ 50%]
+src/tests/test_provisioning.py::test_runner_failure_is_recorded_with_message PASSED [ 53%]
+src/tests/test_provisioning.py::test_unexpected_crash_never_leaves_request_running PASSED [ 56%]
+src/tests/test_provisioning.py::test_settings_require_secrets_outside_development PASSED [ 59%]
+src/tests/test_provisioning.py::test_storage_account_name_is_valid_and_unique_per_request PASSED [ 62%]
+src/tests/test_runops_api.py::test_requests_without_identity_return_401[/api/v1/runops/requests] PASSED [ 65%]
+src/tests/test_runops_api.py::test_requests_without_identity_return_401[/api/v1/runops/status/x] PASSED [ 68%]
+src/tests/test_runops_api.py::test_requests_without_identity_return_401[/api/v1/cloudwise/dashboard] PASSED [ 71%]
+src/tests/test_runops_api.py::test_requests_without_identity_return_401[/api/v1/cloudwise/costs] PASSED [ 75%]
+src/tests/test_runops_api.py::test_create_without_identity_returns_401 PASSED [ 78%]
+src/tests/test_runops_api.py::test_dev_headers_ignored_outside_development PASSED [ 81%]
+src/tests/test_runops_api.py::test_viewer_gets_403_on_create PASSED      [ 84%]
+src/tests/test_runops_api.py::test_provisioner_sees_only_own_requests_and_admin_sees_all PASSED [ 87%]
+src/tests/test_runops_api.py::test_policy_violation_returns_422_and_creates_nothing PASSED [ 90%]
+src/tests/test_runops_api.py::test_templates_catalog_and_policy_endpoints PASSED [ 93%]
+src/tests/use_cases/test_create_provision_request.py::test_create_provision_request_success PASSED [ 96%]
+src/tests/use_cases/test_create_provision_request.py::test_create_provision_request_forbidden_without_role PASSED [100%]
+
+============================== 32 passed in 0.67s ==============================

@@ -1,4 +1,4 @@
-# Arquitetura Cloud Proxy
+# Arquitetura Cloud Wise
 
 ## Visão Geral
 
