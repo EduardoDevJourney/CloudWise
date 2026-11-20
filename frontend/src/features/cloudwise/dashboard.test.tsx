@@ -30,17 +30,17 @@ describe('CloudWiseDashboard', () => {
     renderWithClient(<CloudWiseDashboard />);
 
     await screen.findByRole('option', { name: 'Microsoft.Compute' });
-    await user.selectOptions(screen.getByLabelText('Serviço'), 'Microsoft.Compute');
+    await user.selectOptions(screen.getByLabelText('Service'), 'Microsoft.Compute');
 
     await waitFor(() => expect(seen).toContain('?service=Microsoft.Compute'));
-    expect(await screen.findByText('Sem dados para o filtro selecionado.')).toBeInTheDocument();
+    expect(await screen.findByText('No data for the selected filters.')).toBeInTheDocument();
   });
 
-  it('mostra os gráficos de custo por dia e por serviço', async () => {
+  it('shows the cost per day and per service charts', async () => {
     renderWithClient(<CloudWiseDashboard />);
 
-    expect(await screen.findByText('Custo por dia')).toBeInTheDocument();
-    expect(screen.getByText('Custo por serviço')).toBeInTheDocument();
+    expect(await screen.findByText('Cost per day')).toBeInTheDocument();
+    expect(screen.getByText('Cost per service')).toBeInTheDocument();
     expect(screen.getByTestId('chart-daily')).toBeInTheDocument();
     expect(screen.getByTestId('chart-services')).toBeInTheDocument();
   });

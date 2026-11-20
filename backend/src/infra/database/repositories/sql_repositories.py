@@ -110,7 +110,7 @@ class SQLTemplatesRepository:
             name=template.name,
             params_schema=json.dumps(template.params_schema),
             azure_sku=template.azure_sku,
-            slug=template.slug or str(template.id),
+            slug=template.slug,
             description=template.description,
         )
         self._session.merge(model)

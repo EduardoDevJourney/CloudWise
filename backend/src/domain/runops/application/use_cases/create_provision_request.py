@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 from core.either import Either, Left, Right
@@ -45,9 +45,7 @@ class CreateProvisionRequestUseCase:
 
         template = await self._templates_repo.find_by_id(input_data.template_id)
         if template is None:
-            return Left(
-                ResourceNotFoundError("Template", input_data.template_id)
-            )
+            return Left(ResourceNotFoundError("Template", input_data.template_id))
 
         if self._policy_validator is not None:
             violations = self._policy_validator(
@@ -58,7 +56,7 @@ class CreateProvisionRequestUseCase:
 
         request_data: dict[str, Any] = {
             "template_id": input_data.template_id,
-            "template": template.slug or str(template.id),
+            "template": template.slug,
             "resource_name": input_data.resource_name,
             "environment": input_data.environment,
             "location": input_data.location,

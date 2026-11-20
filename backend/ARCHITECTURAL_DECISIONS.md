@@ -2,7 +2,7 @@
 
 ## Sprint 1 — MVP Foundation
 
-- **Stack:** Python 3.12+, FastAPI, Poetry, SQLModel, Alembic, Pulumi Automation API
+- **Stack:** Python 3.12+, FastAPI, Poetry, SQLModel, Pulumi Automation API
 - **Arquitetura:** DDD + Clean Architecture (`core` / `domain` / `infra`)
 - **Erros:** Padrão Either — use cases retornam `Left(Error)` ou `Right(Result)`
 - **Auth:** Easy Auth via middleware na infra; headers dev em local

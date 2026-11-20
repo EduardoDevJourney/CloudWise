@@ -19,10 +19,10 @@ describe('RequestList', () => {
   it('mostra estado vazio', async () => {
     server.use(http.get('/api/v1/runops/requests', () => HttpResponse.json([])));
     renderWithClient(<RequestList />);
-    expect(await screen.findByText('Nenhuma solicitação ainda.')).toBeInTheDocument();
+    expect(await screen.findByText('No requests yet.')).toBeInTheDocument();
   });
 
-  it('mostra status e duração da execução', async () => {
+  it('shows status and execution duration', async () => {
     server.use(
       http.get('/api/v1/runops/requests', () =>
         HttpResponse.json([
@@ -41,9 +41,9 @@ describe('RequestList', () => {
     );
     renderWithClient(<RequestList />);
 
-    expect(await screen.findByText('Sucesso')).toBeInTheDocument();
+    expect(await screen.findByText('Success')).toBeInTheDocument();
     expect(screen.getByText('42.5s')).toBeInTheDocument();
-    expect(screen.getByText('Executando')).toBeInTheDocument();
+    expect(screen.getByText('Running')).toBeInTheDocument();
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);
   });
 
@@ -79,7 +79,7 @@ describe('RequestList', () => {
             ...base,
             id: 'dddddddd-4',
             status: 'failed',
-            error_message: 'error: nome da Storage Account já existe',
+            error_message: 'error: Storage Account name already exists',
             started_at: 'a',
             finished_at: 'b',
             execution_seconds: 3,
@@ -89,6 +89,6 @@ describe('RequestList', () => {
     );
     renderWithClient(<RequestList />);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('nome da Storage Account já existe');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Storage Account name already exists');
   });
 });

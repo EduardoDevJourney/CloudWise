@@ -1,4 +1,7 @@
-import { useRunopsRequests } from '@features/runops/hooks';
+import { useQuery } from '@tanstack/react-query';
+
+import { describeError } from '@core/errors';
+import { runopsRequestsQuery } from '@core/queries';
 import { StatusBadge } from '@ui/badge';
 import { Loading } from '@ui/loading';
 
@@ -25,11 +28,11 @@ function CreatedResources({ outputs }: { outputs: Record<string, string> }) {
 }
 
 export function RequestList() {
-  const { data, isLoading, isError, error } = useRunopsRequests();
+  const { data, isLoading, isError, error } = useQuery(runopsRequestsQuery);
 
-  if (isLoading) return <Loading label="Carregando solicitações..." />;
-  if (isError) return <p className="text-sm text-red-600">{(error as Error).message}</p>;
-  if (!data?.length) return <p className="text-sm text-slate-500">Nenhuma solicitação ainda.</p>;
+  if (isLoading) return <Loading label="Loading requests..." />;
+  if (isError) return <p className="text-sm text-red-600">{describeError(error)}</p>;
+  if (!data?.length) return <p className="text-sm text-slate-500">No requests yet.</p>;
 
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -39,15 +42,15 @@ export function RequestList() {
             <th className="px-4 py-3">ID</th>
             <th className="px-4 py-3">Template</th>
             <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Recursos criados</th>
-            <th className="px-4 py-3">Criado em</th>
-            <th className="px-4 py-3">Duração</th>
+            <th className="px-4 py-3">Created resources</th>
+            <th className="px-4 py-3">Created at</th>
+            <th className="px-4 py-3">Duration</th>
           </tr>
         </thead>
         <tbody>
           {data.map((item) => (
             <tr key={item.id} className="border-t border-slate-100">
-              <td className="px-4 py-3 font-mono text-xs">{item.id.slice(0, 8)}...</td>
+              <td className="px-4 py-3 font-mono text-xs">{item.id.slice(0, 8)}…</td>
               <td className="px-4 py-3">{item.template_id}</td>
               <td className="px-4 py-3">
                 <StatusBadge status={item.status} />
@@ -60,7 +63,7 @@ export function RequestList() {
               <td className="px-4 py-3">
                 <CreatedResources outputs={item.outputs} />
               </td>
-              <td className="px-4 py-3">{new Date(item.created_at).toLocaleString('pt-BR')}</td>
+              <td className="px-4 py-3">{new Date(item.created_at).toLocaleString('en-US')}</td>
               <td className="px-4 py-3">
                 {item.execution_seconds === null ? '—' : `${item.execution_seconds}s`}
               </td>

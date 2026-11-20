@@ -8,7 +8,7 @@ import { server } from '@mocks/server';
 import { ProvisionForm } from '@features/runops/provision-form';
 
 describe('ProvisionForm', () => {
-  it('monta os selects de template, ambiente e região a partir da API', async () => {
+  it('builds the template, environment and location selects from the API', async () => {
     renderWithClient(<ProvisionForm />);
 
     expect(await screen.findByRole('option', { name: 'Resource Group + Key Vault' })).toBeInTheDocument();
@@ -16,22 +16,22 @@ describe('ProvisionForm', () => {
     expect(await screen.findByRole('option', { name: 'hml' })).toBeInTheDocument();
   });
 
-  it('mostra o id da solicitação criada', async () => {
+  it('shows the id of the created request', async () => {
     const user = userEvent.setup();
     renderWithClient(<ProvisionForm />);
     await screen.findByRole('option', { name: 'eastus2' });
 
     await user.type(screen.getByRole('textbox'), 'meu-recurso');
-    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
+    await user.click(screen.getByRole('button', { name: 'Provision' }));
 
-    expect(await screen.findByText(/Solicitação criada:/)).toBeInTheDocument();
+    expect(await screen.findByText(/Request created:/)).toBeInTheDocument();
   });
 
-  it('mostra as violações de política devolvidas com 422', async () => {
+  it('shows the policy violations returned with a 422', async () => {
     server.use(
       http.post('/api/v1/runops/provision', () =>
         HttpResponse.json(
-          { detail: ['resource_name inválido', 'location deve ser uma de: eastus'] },
+          { detail: ['invalid resource_name', 'location must be one of: eastus'] },
           { status: 422 },
         ),
       ),
@@ -41,14 +41,14 @@ describe('ProvisionForm', () => {
     await screen.findByRole('option', { name: 'eastus2' });
 
     await user.type(screen.getByRole('textbox'), 'nome-valido');
-    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
+    await user.click(screen.getByRole('button', { name: 'Provision' }));
 
     await waitFor(() =>
-      expect(screen.getByText(/resource_name inválido · location deve ser uma de: eastus/)).toBeInTheDocument(),
+      expect(screen.getByText(/invalid resource_name · location must be one of: eastus/)).toBeInTheDocument(),
     );
   });
 
-  it('mostra a dica do nome e não envia nome fora do padrão', async () => {
+  it('shows the name hint and does not submit a name outside the pattern', async () => {
     let posted = false;
     server.use(
       http.post('/api/v1/runops/provision', () => {
@@ -60,11 +60,11 @@ describe('ProvisionForm', () => {
     renderWithClient(<ProvisionForm />);
     await screen.findByRole('option', { name: 'eastus2' });
 
-    expect(screen.getByText(/3 a 20 caracteres: minúsculas, números e hífen/)).toBeInTheDocument();
+    expect(screen.getByText(/3 to 20 characters: lowercase letters, digits and hyphens/)).toBeInTheDocument();
 
     await user.type(screen.getByRole('textbox'), 'AB');
     expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
-    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
+    await user.click(screen.getByRole('button', { name: 'Provision' }));
 
     expect(posted).toBe(false);
   });

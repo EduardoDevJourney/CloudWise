@@ -1,16 +1,16 @@
-# Cloud Wise — portal de infraestrutura padronizada
+# Cloud Wise
 
-Monorepo fullstack para provisionamento Azure (RunOps) e visualização de custos (Cloud Wise).
+Standardized infrastructure portal. A fullstack monorepo for Azure provisioning (RunOps) and cost visibility (Cloud Wise).
 
 ## Stack
 
-| Camada | Tecnologias |
-|--------|-------------|
+| Layer | Technologies |
+|-------|--------------|
 | Backend | Python 3.12, FastAPI, DDD, SQLModel, Pulumi |
 | Frontend | React 19, Vite, TanStack Router/Query/Form, Valibot, Tailwind v4 |
 | Infra | Pulumi Azure Native, Docker Compose (SQL Server) |
 
-## Início rápido
+## Quick start
 
 ```bash
 cp .env.example .env
@@ -30,37 +30,37 @@ npm run dev
 - API: http://localhost:8000/api/v1/health
 - UI: http://localhost:5173
 
-## Perfis e autenticação
+Tests: `cd backend && poetry run pytest` and `cd frontend && npm test`.
 
-O Easy Auth (Azure App Service) autentica; a autorização fica na tabela `users` do Cloud Wise.
+## Roles and authentication
 
-| Papel | Pode |
-|-------|------|
-| `runops.viewer` (padrão no primeiro acesso) | ver dashboard, custos e as próprias solicitações |
-| `runops.provisioner` | tudo do viewer + criar provisionamentos |
-| `runops.admin` | tudo + ver todas as solicitações + gerenciar usuários (papel, bloquear) |
+Easy Auth (Azure App Service) authenticates; authorization lives in the `users` table.
 
-- O primeiro admin vem de `ADMIN_EMAILS` no `.env` (e-mails separados por vírgula).
-- Os papéis que vêm no token do Entra ID são ignorados.
-- **Desenvolvimento local:** com `APP_ENV=development` o backend aceita os headers `X-Dev-User-Id` e
-  `X-Dev-User-Email`. O frontend envia `dev-user` / `dev-user@dev.local` (em `frontend/src/core/http-resource.ts`),
-  que vira admin se estiver em `ADMIN_EMAILS`. Para testar outro perfil, troque o e-mail nesse arquivo (ele entra como
-  viewer) e promova-o pela página **Usuários**. Fora de `development`, esses headers são ignorados.
-- Fora de `development`, `SECRET_KEY` e `PULUMI_CONFIG_PASSPHRASE` são obrigatórios (a aplicação não sobe sem eles).
-- Banco já existente: colunas novas são adicionadas automaticamente na subida (migração mínima).
+| Role | Can |
+|------|-----|
+| `runops.viewer` (default on first login) | see the dashboard, costs and their own requests |
+| `runops.provisioner` | everything a viewer can, plus create provisioning requests |
+| `runops.admin` | everything, plus see all requests and manage users (role, block) |
 
-## Documentação
+- The first admin comes from `ADMIN_EMAILS` in `.env` (comma-separated emails).
+- Roles carried in the Entra ID token are ignored.
+- **Local development:** with `APP_ENV=development` the backend accepts the `X-Dev-User-Id` and
+  `X-Dev-User-Email` headers. The frontend sends `dev-user` / `dev-user@dev.local`
+  (see `frontend/src/core/http-resource.ts`), which becomes admin when listed in `ADMIN_EMAILS`.
+  To try another profile, change the email in that file (it joins as viewer) and promote it from the
+  **Users** page. Outside `development` these headers are ignored.
+- Outside `development`, `SECRET_KEY` and `PULUMI_CONFIG_PASSPHRASE` are required; the app won't start without them.
+- Existing databases get new nullable columns added on startup (minimal migration).
 
-- [Plano completo](plan.md)
-- [Arquitetura](docs/architecture.md)
+## Docs
+
+- [Architecture](docs/architecture.md)
 - [Smoke test](docs/smoke-test.md)
-- [Backend DDD guide](backend.md)
-- [Frontend architecture guide](front-end.md)
 
-## Estrutura
+## Layout
 
 ```
-backend/src/   → core, domain, infra (DDD)
-frontend/src/  → core, ui, features, routes
-infra/pulumi/  → RG + Storage Account
+backend/src/   core, domain, infra (DDD)
+frontend/src/  core, ui, layouts, features, routes
+infra/pulumi/  Pulumi program: Resource Group + Storage Account or Key Vault
 ```

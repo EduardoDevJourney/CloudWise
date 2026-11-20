@@ -1,26 +1,34 @@
-# Smoke Test — Cloud Wise MVP
+# Smoke test
 
-## Pré-requisitos
+## Prerequisites
 
 - Docker
-- Python 3.12+ com Poetry
+- Python 3.12+ with Poetry
 - Node.js 20+
-- Azure CLI autenticado (para Pulumi real)
+- Azure service principal in `.env` (`AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID`,
+  `AZURE_SUBSCRIPTION_ID`) to run Pulumi for real
 
-## Passos
+## Steps
 
 1. `cp .env.example .env`
 2. `docker compose up -d`
 3. `cd backend && poetry install && poetry run uvicorn infra.http.main:app --reload --app-dir src --port 8000`
 4. `cd frontend && npm install && npm run dev`
-5. Abrir `http://localhost:5173/dashboard`
-6. Verificar cards de custo mockados
-7. Ir para `/runops` e provisionar template `rg-storage`
-8. Acompanhar status na listagem
+5. Open `http://localhost:5173/dashboard` and check the cost cards and charts (sample data)
+6. Go to `/runops` and provision the `rg-storage` template
+7. Watch the request move through the list until it succeeds or fails
 
 ## Endpoints
 
-- `GET /api/v1/health`
-- `GET /api/v1/cloudwise/dashboard`
-- `POST /api/v1/runops/provision`
-- `GET /api/v1/runops/status/{id}`
+All under `/api/v1`.
+
+| Route | Access |
+|-------|--------|
+| `GET /health` | open |
+| `GET /me` | any authenticated user |
+| `GET /users`, `PATCH /users/{id}` | admin |
+| `POST /runops/provision` | provisioner or admin |
+| `GET /runops/status/{id}` | owner or admin |
+| `GET /runops/requests` | own requests (admin sees all) |
+| `GET /runops/templates`, `GET /runops/policy` | authenticated |
+| `GET /cloudwise/costs`, `GET /cloudwise/dashboard` | authenticated |

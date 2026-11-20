@@ -16,7 +16,7 @@ def create(resource_name: str, environment: str, suffix: str, resource_group, ta
             enable_rbac_authorization=True,
             enable_soft_delete=True,
             soft_delete_retention_in_days=7,
-            # A API não aceita False explícito: ou liga, ou omite.
+            # The API rejects an explicit False: either enable it or leave it out.
             enable_purge_protection=True if policy.key_vault_purge_protection(environment) else None,
         ),
         tags=tags,

@@ -1,12 +1,14 @@
 import { useForm } from '@tanstack/react-form';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 import * as v from 'valibot';
 
 import { describeError } from '@core/errors';
+import { runopsPolicyQuery, runopsTemplatesQuery } from '@core/queries';
 import { Button } from '@ui/button';
 import { Input } from '@ui/input';
 import { Select } from '@ui/select';
-import { useCreateProvision, usePolicy, useTemplates } from '@features/runops/hooks';
+import { useCreateProvision } from '@features/runops/hooks';
 import { provisionFormSchema, type ProvisionFormValues } from '@features/runops/schemas';
 
 const defaultValues: ProvisionFormValues = {
@@ -18,26 +20,26 @@ const defaultValues: ProvisionFormValues = {
 
 export function ProvisionForm() {
   const mutation = useCreateProvision();
-  const templates = useTemplates();
-  const policy = usePolicy();
+  const templates = useQuery(runopsTemplatesQuery);
+  const policy = useQuery(runopsPolicyQuery);
   const [lastId, setLastId] = useState<string | null>(null);
 
-  // O padrão vem da política do servidor (fonte única das regras).
-  const namePattern = policy.data ? new RegExp(policy.data.resource_name_pattern) : null;
+  // the server policy is the single source of the naming rule
+  const namePattern = useMemo(
+    () => (policy.data ? new RegExp(policy.data.resource_name_pattern) : null),
+    [policy.data],
+  );
+  const isNameInvalid = (name: string) => Boolean(name && namePattern && !namePattern.test(name));
   const catalogLoading = templates.isLoading || policy.isLoading;
 
   const form = useForm({
     defaultValues,
-    onSubmit: async ({ value }) => {
-      if (namePattern && !namePattern.test(value.resource_name)) return;
-      const parsed = v.parse(provisionFormSchema, value);
-      try {
-        const result = await mutation.mutateAsync(parsed);
-        setLastId(result.id);
-      } catch {
-        // O erro (ex.: 422 de política) é exibido via mutation.error abaixo.
-        setLastId(null);
-      }
+    onSubmit: ({ value }) => {
+      if (!value.resource_name || isNameInvalid(value.resource_name)) return;
+      mutation.mutate(v.parse(provisionFormSchema, value), {
+        onSuccess: (created) => setLastId(created.id),
+        onError: () => setLastId(null),
+      });
     },
   });
 
@@ -49,7 +51,7 @@ export function ProvisionForm() {
         void form.handleSubmit();
       }}
     >
-      <h2 className="text-lg font-semibold text-slate-900">Novo provisionamento</h2>
+      <h2 className="text-lg font-semibold text-slate-900">New provisioning request</h2>
 
       <form.Field name="template_id">
         {(field) => (
@@ -60,7 +62,7 @@ export function ProvisionForm() {
               disabled={catalogLoading}
               onChange={(e) => field.handleChange(e.target.value)}
             >
-              {catalogLoading ? <option>Carregando...</option> : null}
+              {catalogLoading ? <option>Loading...</option> : null}
               {(templates.data ?? []).map((t) => (
                 <option key={t.slug} value={t.slug}>
                   {t.name}
@@ -74,22 +76,22 @@ export function ProvisionForm() {
       <form.Field name="resource_name">
         {(field) => (
           <label className="block space-y-1 text-sm">
-            <span>Nome do recurso</span>
+            <span>Resource name</span>
             <Input
               value={field.state.value}
               aria-describedby="resource-name-hint"
-              aria-invalid={Boolean(field.state.value && namePattern && !namePattern.test(field.state.value))}
+              aria-invalid={isNameInvalid(field.state.value)}
               onChange={(e) => field.handleChange(e.target.value)}
             />
             <span
               id="resource-name-hint"
               className={
-                field.state.value && namePattern && !namePattern.test(field.state.value)
+                isNameInvalid(field.state.value)
                   ? 'block text-xs text-red-600'
                   : 'block text-xs text-slate-500'
               }
             >
-              3 a 20 caracteres: minúsculas, números e hífen, começando por letra.
+              3 to 20 characters: lowercase letters, digits and hyphens, starting with a letter.
             </span>
           </label>
         )}
@@ -98,7 +100,7 @@ export function ProvisionForm() {
       <form.Field name="environment">
         {(field) => (
           <label className="block space-y-1 text-sm">
-            <span>Ambiente</span>
+            <span>Environment</span>
             <Select
               value={field.state.value}
               disabled={catalogLoading}
@@ -117,7 +119,7 @@ export function ProvisionForm() {
       <form.Field name="location">
         {(field) => (
           <label className="block space-y-1 text-sm">
-            <span>Região</span>
+            <span>Location</span>
             <Select
               value={field.state.value}
               disabled={catalogLoading}
@@ -134,10 +136,10 @@ export function ProvisionForm() {
       </form.Field>
 
       <Button type="submit" disabled={mutation.isPending}>
-        {mutation.isPending ? 'Provisionando...' : 'Provisionar'}
+        {mutation.isPending ? 'Provisioning...' : 'Provision'}
       </Button>
 
-      {lastId ? <p className="text-sm text-slate-600">Solicitação criada: {lastId}</p> : null}
+      {lastId ? <p className="text-sm text-slate-600">Request created: {lastId}</p> : null}
       {mutation.isError ? (
         <p className="text-sm text-red-600">{describeError(mutation.error)}</p>
       ) : null}

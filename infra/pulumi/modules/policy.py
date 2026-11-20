@@ -1,33 +1,33 @@
-"""Política padrão da empresa para provisionamento.
+"""Company provisioning policy.
 
-Fonte única das regras de negócio. Python puro (sem importar pulumi), para que
-o backend possa validar o pedido antes de executar e o Pulumi aplique as mesmas
-regras ao criar os recursos.
+Single source of the business rules. Plain Python (no pulumi import) so the
+backend can validate a request before running it and Pulumi applies the same
+rules when creating the resources.
 """
 
 import re
 
 ALLOWED_LOCATIONS = ("eastus", "eastus2", "brazilsouth")
 ALLOWED_ENVIRONMENTS = ("dev", "hml", "prod")
-REQUIRED_TAGS = ("project", "environment", "managed-by", "owner", "template")
 
-# Nome lógico: minúsculas, números e hífen; 3 a 20 caracteres; começa com letra.
+# Logical name: lowercase letters, digits and hyphens; 3 to 20 chars; starts with a letter.
 RESOURCE_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9-]{2,19}$")
 
 STORAGE_SKU_BY_ENV = {"dev": "Standard_LRS", "hml": "Standard_LRS", "prod": "Standard_GRS"}
 
 
 def validate_request(resource_name: str, environment: str, location: str) -> list[str]:
-    """Devolve a lista de violações (vazia quando o pedido está conforme)."""
+    """Returns the list of violations (empty when the request complies)."""
     violations: list[str] = []
     if not RESOURCE_NAME_PATTERN.match(resource_name or ""):
         violations.append(
-            "resource_name deve ter 3 a 20 caracteres: minúsculas, números e hífen, começando por letra"
+            "resource_name must be 3 to 20 characters: lowercase letters, digits and hyphens, "
+            "starting with a letter"
         )
     if environment not in ALLOWED_ENVIRONMENTS:
-        violations.append(f"environment deve ser um de: {', '.join(ALLOWED_ENVIRONMENTS)}")
+        violations.append(f"environment must be one of: {', '.join(ALLOWED_ENVIRONMENTS)}")
     if location not in ALLOWED_LOCATIONS:
-        violations.append(f"location deve ser uma de: {', '.join(ALLOWED_LOCATIONS)}")
+        violations.append(f"location must be one of: {', '.join(ALLOWED_LOCATIONS)}")
     return violations
 
 
@@ -46,13 +46,14 @@ def resource_group_name(resource_name: str, environment: str) -> str:
 
 
 def storage_account_name(resource_name: str, environment: str, suffix: str) -> str:
-    """3-24 caracteres, só minúsculas e números, único globalmente (sufixo do id do pedido)."""
+    """3-24 chars, lowercase letters and digits only, globally unique
+    (suffix comes from the request id)."""
     compact = resource_name.replace("-", "")[:12]
     return f"sa{compact}{environment[:4]}{suffix.replace('-', '')[:6]}".lower()[:24]
 
 
 def key_vault_name(resource_name: str, environment: str, suffix: str) -> str:
-    """3-24 caracteres, único globalmente: o sufixo vem do id da solicitação."""
+    """3-24 chars, globally unique (suffix comes from the request id)."""
     return f"kv-{resource_name[:10]}-{environment[:4]}-{suffix[:4]}"[:24]
 
 
@@ -61,5 +62,5 @@ def storage_sku(environment: str) -> str:
 
 
 def key_vault_purge_protection(environment: str) -> bool:
-    # Irreversível e reserva o nome do cofre: só em produção.
+    # Irreversible and it reserves the vault name, so prod only.
     return environment == "prod"

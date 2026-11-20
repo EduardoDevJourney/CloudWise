@@ -9,7 +9,6 @@ export function toDailyPoints(series: CostSeriesDay[]): DailyPoint[] {
   return series.map((day) => ({ date: day.date, total: round(day.total_cost) }));
 }
 
-/** Soma o custo de cada serviço em todo o período, do maior para o menor. */
 export function toServicePoints(series: CostSeriesDay[]): ServicePoint[] {
   const totals = new Map<string, number>();
   for (const day of series) {

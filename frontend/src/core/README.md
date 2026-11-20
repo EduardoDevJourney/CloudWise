@@ -1,12 +1,9 @@
-# Core Layer
+# Core layer
 
-HTTP client, query keys/options, auth, API modules e tipos compartilhados.
+HTTP client, query keys and options, auth, API modules and shared types.
 
-## Módulos API
+- `api/auth.ts`: current user and user management
+- `api/runops.ts`: provisioning, requests, templates and policy
+- `api/cloudwise.ts`: costs and dashboard
 
-- `api/runops.ts` — provisionamento e status
-- `api/cloudwise.ts` — custos e dashboard
-
-## Contratos
-
-Tipos em `types/api.ts` espelham os DTOs do backend FastAPI.
+Types in `types/api.ts` mirror the FastAPI DTOs.

@@ -13,7 +13,7 @@ function Who() {
 }
 
 describe('AuthProvider', () => {
-  it('expõe usuário e papel vindos de /me', async () => {
+  it('exposes the user and role coming from /me', async () => {
     renderWithClient(
       <AuthProvider>
         <Who />
@@ -22,23 +22,23 @@ describe('AuthProvider', () => {
     expect(await screen.findByText('dev-user@dev.local / runops.admin')).toBeInTheDocument();
   });
 
-  it('mostra tela de não autenticado em 401', async () => {
+  it('shows the not authenticated screen on 401', async () => {
     server.use(http.get('/api/v1/me', () => HttpResponse.json({ detail: 'Authentication required' }, { status: 401 })));
     renderWithClient(
       <AuthProvider>
         <Who />
       </AuthProvider>,
     );
-    expect(await screen.findByText('Não autenticado')).toBeInTheDocument();
+    expect(await screen.findByText('Not authenticated')).toBeInTheDocument();
   });
 
-  it('mostra tela de acesso bloqueado em 403', async () => {
+  it('shows the blocked access screen on 403', async () => {
     server.use(http.get('/api/v1/me', () => HttpResponse.json({ detail: 'User blocked' }, { status: 403 })));
     renderWithClient(
       <AuthProvider>
         <Who />
       </AuthProvider>,
     );
-    expect(await screen.findByText('Acesso bloqueado')).toBeInTheDocument();
+    expect(await screen.findByText('Access blocked')).toBeInTheDocument();
   });
 });

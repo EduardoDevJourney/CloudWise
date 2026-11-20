@@ -1,6 +1,5 @@
 from datetime import UTC, datetime, timedelta
 
-import pytest
 from httpx import AsyncClient
 
 from domain.runops.enterprise.entities.provision_request import ProvisionRequest
@@ -8,7 +7,6 @@ from domain.runops.enterprise.entities.provision_request import ProvisionRequest
 BASE = "/api/v1"
 
 
-@pytest.mark.asyncio
 async def test_costs_filter_by_service_and_subscription(client: AsyncClient, login):
     h = login("cost-viewer", "runops.viewer")
     everything = (await client.get(f"{BASE}/cloudwise/costs", headers=h)).json()
@@ -21,7 +19,6 @@ async def test_costs_filter_by_service_and_subscription(client: AsyncClient, log
     assert {r["subscription_id"] for r in by_sub} == {sub}
 
 
-@pytest.mark.asyncio
 async def test_costs_filter_by_period_and_invalid_range(client: AsyncClient, login):
     h = login("cost-viewer", "runops.viewer")
     one_day = (await client.get(f"{BASE}/cloudwise/costs", params={"start": "2026-06-01", "end": "2026-06-01"}, headers=h)).json()
@@ -32,7 +29,6 @@ async def test_costs_filter_by_period_and_invalid_range(client: AsyncClient, log
     assert bad_dash.status_code == 422
 
 
-@pytest.mark.asyncio
 async def test_dashboard_summary_respects_filters(client: AsyncClient, login):
     h = login("cost-viewer", "runops.viewer")
     full = (await client.get(f"{BASE}/cloudwise/dashboard", headers=h)).json()
@@ -49,7 +45,6 @@ def test_execution_seconds_is_finish_minus_start():
     assert request.execution_seconds == 42.0
 
 
-@pytest.mark.asyncio
 async def test_status_exposes_duration_after_run(client: AsyncClient, login, monkeypatch):
     class Runner:
         async def up(self, stack_name, config):
@@ -64,7 +59,6 @@ async def test_status_exposes_duration_after_run(client: AsyncClient, login, mon
     assert body["execution_seconds"] is not None and body["execution_seconds"] >= 0
 
 
-@pytest.mark.asyncio
 async def test_templates_expose_description_and_params(client: AsyncClient, login):
     h = login("tpl-user", "runops.viewer")
     templates = (await client.get(f"{BASE}/runops/templates", headers=h)).json()

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Protocol
 
 from core.either import Either, Left, Right
@@ -15,8 +15,8 @@ class UsersRepository(Protocol):
 
 
 class ResolveUserUseCase:
-    """Autorização vive no Cloud Wise: primeiro acesso cadastra o usuário como viewer
-    (ou admin, se o e-mail estiver em ADMIN_EMAILS)."""
+    """Authorization lives in Cloud Wise: a first login registers the user as viewer
+    (or admin, if the email is listed in ADMIN_EMAILS)."""
 
     def __init__(self, users: UsersRepository, admin_emails: list[str]) -> None:
         self._users = users
@@ -26,7 +26,9 @@ class ResolveUserUseCase:
         user = await self._users.find_by_id(user_id)
         if user is None:
             role = ROLE_ADMIN if email.lower() in self._admin_emails else ROLE_VIEWER
-            user = User(id=user_id, email=email, role=role, active=True, created_at=datetime.utcnow())
+            user = User(
+                id=user_id, email=email, role=role, active=True, created_at=datetime.now(UTC)
+            )
             await self._users.save(user)
         return user
 

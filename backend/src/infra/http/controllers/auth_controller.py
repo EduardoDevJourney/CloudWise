@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
 from domain.auth.application.use_cases.manage_users import ListUsersUseCase, UpdateUserUseCase
-from domain.runops.application.errors.not_allowed_error import NotAllowedError
+from domain.auth.roles import ROLE_ADMIN
 from domain.runops.application.errors.resource_not_found_error import ResourceNotFoundError
 from infra.database.repositories.sql_repositories import SQLUsersRepository
 from infra.database.session import get_session
 from infra.http.dtos.api_dtos import MeDTO, UserReadDTO, UserUpdateDTO
-from infra.http.middleware.easy_auth import ROLE_ADMIN, AuthUser, get_current_user, require_role
+from infra.http.middleware.easy_auth import AuthUser, get_current_user, require_role
 
 router = APIRouter(tags=["auth"])
 
@@ -50,7 +50,5 @@ async def update_user(
         error = result.value
         if isinstance(error, ResourceNotFoundError):
             raise HTTPException(status_code=404, detail=str(error))
-        if isinstance(error, NotAllowedError):
-            raise HTTPException(status_code=400, detail=str(error))
         raise HTTPException(status_code=400, detail=str(error))
     return _to_dto(result.value)

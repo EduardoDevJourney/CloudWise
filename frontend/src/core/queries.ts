@@ -2,12 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 
 import { fetchMe, fetchUsers } from '@core/api/auth';
 import { fetchCloudWiseDashboard, fetchCosts } from '@core/api/cloudwise';
-import {
-  fetchPolicy,
-  fetchProvisionRequests,
-  fetchProvisionStatus,
-  fetchTemplates,
-} from '@core/api/runops';
+import { fetchPolicy, fetchProvisionRequests, fetchTemplates } from '@core/api/runops';
 import { queryKeys } from '@core/keys';
 import type { CostFilters, ProvisionStatus } from '@core/types/api';
 
@@ -45,7 +40,6 @@ export const runopsRequestsQuery = queryOptions({
   queryKey: queryKeys.runops.requests.queryKey,
   queryFn: fetchProvisionRequests,
   staleTime: 5_000,
-  // Enquanto houver solicitação em andamento, atualiza a lista sozinha.
   refetchInterval: (query) =>
     query.state.data?.some((r) => !TERMINAL.includes(r.status)) ? 3000 : false,
 });
@@ -61,16 +55,3 @@ export const runopsPolicyQuery = queryOptions({
   queryFn: fetchPolicy,
   staleTime: 60_000,
 });
-
-export function runopsStatusQuery(id: string) {
-  return queryOptions({
-    queryKey: queryKeys.runops.status(id).queryKey,
-    queryFn: () => fetchProvisionStatus(id),
-    enabled: Boolean(id),
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      if (!status) return 3000;
-      return TERMINAL.includes(status) ? false : 3000;
-    },
-  });
-}

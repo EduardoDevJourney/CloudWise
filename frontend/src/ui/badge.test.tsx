@@ -5,14 +5,14 @@ import type { ProvisionStatus } from '@core/types/api';
 import { StatusBadge } from '@ui/badge';
 
 const cases: [ProvisionStatus, string, string][] = [
-  ['pending', 'Pendente', 'bg-yellow-100'],
-  ['running', 'Executando', 'bg-blue-100'],
-  ['success', 'Sucesso', 'bg-green-100'],
-  ['failed', 'Falhou', 'bg-red-100'],
+  ['pending', 'Pending', 'bg-yellow-100'],
+  ['running', 'Running', 'bg-blue-100'],
+  ['success', 'Success', 'bg-green-100'],
+  ['failed', 'Failed', 'bg-red-100'],
 ];
 
 describe('StatusBadge', () => {
-  it.each(cases)('status %s tem rótulo %s e cor própria', (status, label, colorClass) => {
+  it.each(cases)('status %s has label %s and its own color', (status, label, colorClass) => {
     render(<StatusBadge status={status} />);
     const badge = screen.getByText(label);
     expect(badge).toHaveAttribute('data-variant', status);

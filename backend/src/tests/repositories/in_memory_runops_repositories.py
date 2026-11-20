@@ -30,4 +30,4 @@ class InMemoryTemplatesRepository:
         return list(self._items.values())
 
     async def save(self, template: Template) -> None:
-        self._items[template.slug or str(template.id)] = template
+        self._items[template.slug] = template

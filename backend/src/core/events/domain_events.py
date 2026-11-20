@@ -22,7 +22,3 @@ class DomainEvents:
     def dispatch_events(cls, events: list[DomainEvent]) -> None:
         for event in events:
             cls.dispatch(event)
-
-    @classmethod
-    def clear_handlers(cls) -> None:
-        cls._handlers.clear()

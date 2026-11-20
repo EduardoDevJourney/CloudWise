@@ -1,17 +1,7 @@
-import json
 from datetime import date, datetime
-from typing import Any
 
 from sqlalchemy import Boolean, Column, Date, DateTime, Float, String, Text
 from sqlmodel import Field, SQLModel
-
-
-def _json_loads(value: str | dict[str, Any] | None) -> dict[str, Any]:
-    if value is None:
-        return {}
-    if isinstance(value, dict):
-        return value
-    return json.loads(value)
 
 
 class TemplateModel(SQLModel, table=True):

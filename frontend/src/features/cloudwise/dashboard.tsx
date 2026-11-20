@@ -12,8 +12,8 @@ import {
   YAxis,
 } from 'recharts';
 
-import { cloudWiseCostsQuery, cloudWiseDashboardQuery } from '@core/queries';
 import { describeError } from '@core/errors';
+import { cloudWiseCostsQuery, cloudWiseDashboardQuery } from '@core/queries';
 import type { CostFilters } from '@core/types/api';
 import { Button } from '@ui/button';
 import { Input } from '@ui/input';
@@ -28,10 +28,12 @@ import {
 
 const usd = (value: number) => `$${value.toFixed(2)}`;
 
+const card = 'rounded-lg border border-slate-200 bg-white p-4 shadow-sm';
+
 export function CloudWiseDashboard() {
   const [filters, setFilters] = useState<CostFilters>({});
   const { data, isLoading, isError, error } = useQuery(cloudWiseDashboardQuery(filters));
-  // Opções dos filtros vêm do conjunto completo de custos (sem filtro).
+  // filter options come from the full, unfiltered cost list
   const { data: allCosts } = useQuery(cloudWiseCostsQuery());
 
   const services = useMemo(
@@ -48,14 +50,11 @@ export function CloudWiseDashboard() {
 
   return (
     <div className="space-y-6">
-      <section
-        aria-label="Filtros"
-        className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-5"
-      >
+      <section aria-label="Filters" className={`grid gap-3 md:grid-cols-5 ${card}`}>
         <label className="space-y-1 text-sm">
-          <span>Serviço</span>
+          <span>Service</span>
           <Select value={filters.service ?? ''} onChange={(e) => setFilter('service', e.target.value)}>
-            <option value="">Todos</option>
+            <option value="">All</option>
             {services.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -69,7 +68,7 @@ export function CloudWiseDashboard() {
             value={filters.subscription_id ?? ''}
             onChange={(e) => setFilter('subscription_id', e.target.value)}
           >
-            <option value="">Todas</option>
+            <option value="">All</option>
             {subscriptions.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -78,49 +77,45 @@ export function CloudWiseDashboard() {
           </Select>
         </label>
         <label className="space-y-1 text-sm">
-          <span>De</span>
+          <span>From</span>
           <Input type="date" value={filters.start ?? ''} onChange={(e) => setFilter('start', e.target.value)} />
         </label>
         <label className="space-y-1 text-sm">
-          <span>Até</span>
+          <span>To</span>
           <Input type="date" value={filters.end ?? ''} onChange={(e) => setFilter('end', e.target.value)} />
         </label>
         <div className="flex items-end">
           <Button variant="secondary" onClick={() => setFilters({})}>
-            Limpar filtros
+            Clear filters
           </Button>
         </div>
       </section>
 
-      {isLoading ? <Loading label="Carregando dashboard..." /> : null}
-      {isError ? (
-        <p className="text-sm text-red-600">{describeError(error)}</p>
-      ) : null}
+      {isLoading ? <Loading label="Loading dashboard..." /> : null}
+      {isError ? <p className="text-sm text-red-600">{describeError(error)}</p> : null}
       {data ? (
         <>
           <section className="grid gap-4 md:grid-cols-3">
-            <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-sm text-slate-500">Custo total</p>
-              <p className="text-2xl font-semibold">${data.summary.total_cost.toFixed(2)}</p>
+            <article className={card}>
+              <p className="text-sm text-slate-500">Total cost</p>
+              <p className="text-2xl font-semibold">{usd(data.summary.total_cost)}</p>
             </article>
-            <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-sm text-slate-500">Top serviço</p>
+            <article className={card}>
+              <p className="text-sm text-slate-500">Top service</p>
               <p className="text-2xl font-semibold">{data.summary.top_service}</p>
             </article>
-            <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <article className={card}>
               <p className="text-sm text-slate-500">Subscriptions</p>
               <p className="text-2xl font-semibold">{data.summary.subscription_count}</p>
             </article>
           </section>
 
           {data.series.length === 0 ? (
-            <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
-              Sem dados para o filtro selecionado.
-            </p>
+            <p className={`${card} text-sm text-slate-500`}>No data for the selected filters.</p>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
-              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold">Custo por dia</h2>
+              <section className={card}>
+                <h2 className="mb-4 text-lg font-semibold">Cost per day</h2>
                 <div className="h-64" data-testid="chart-daily">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={toDailyPoints(data.series)}>
@@ -128,14 +123,14 @@ export function CloudWiseDashboard() {
                       <XAxis dataKey="date" tickFormatter={shortDate} fontSize={12} />
                       <YAxis tickFormatter={usd} fontSize={12} width={64} />
                       <Tooltip formatter={(value) => usd(Number(value))} />
-                      <Line type="monotone" dataKey="total" name="Custo" stroke="#2563eb" strokeWidth={2} dot />
+                      <Line type="monotone" dataKey="total" name="Cost" stroke="#2563eb" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </section>
 
-              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold">Custo por serviço</h2>
+              <section className={card}>
+                <h2 className="mb-4 text-lg font-semibold">Cost per service</h2>
                 <div className="h-64" data-testid="chart-services">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={toServicePoints(data.series)}>
@@ -143,7 +138,7 @@ export function CloudWiseDashboard() {
                       <XAxis dataKey="service" tickFormatter={shortService} fontSize={12} />
                       <YAxis tickFormatter={usd} fontSize={12} width={64} />
                       <Tooltip formatter={(value) => usd(Number(value))} />
-                      <Bar dataKey="total" name="Custo" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="total" name="Cost" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

@@ -9,26 +9,26 @@ const series: CostSeriesDay[] = [
 ];
 
 describe('chart-data', () => {
-  it('monta a série diária arredondada', () => {
+  it('builds the rounded daily series', () => {
     expect(toDailyPoints(series)).toEqual([
       { date: '2026-06-01', total: 125.5 },
       { date: '2026-06-02', total: 89.33 },
     ]);
   });
 
-  it('soma por serviço em ordem decrescente', () => {
+  it('sums per service in descending order', () => {
     expect(toServicePoints(series)).toEqual([
       { service: 'Microsoft.Compute', total: 114.83 },
       { service: 'Microsoft.Storage', total: 100 },
     ]);
   });
 
-  it('formata rótulos', () => {
+  it('formats labels', () => {
     expect(shortDate('2026-06-01')).toBe('01/06');
     expect(shortService('Microsoft.Storage')).toBe('Storage');
   });
 
-  it('lida com série vazia', () => {
+  it('handles an empty series', () => {
     expect(toDailyPoints([])).toEqual([]);
     expect(toServicePoints([])).toEqual([]);
   });

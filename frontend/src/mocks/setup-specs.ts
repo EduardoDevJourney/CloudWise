@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 
 import { server } from '@mocks/server';
 
-// Recharts (ResponsiveContainer) precisa de ResizeObserver, que o jsdom não tem.
+// Recharts (ResponsiveContainer) needs ResizeObserver, which jsdom doesn't ship.
 globalThis.ResizeObserver ??= class {
   observe() {}
   unobserve() {}

@@ -7,9 +7,9 @@ export const ROLE_ADMIN: UserRole = 'runops.admin';
 export const ALL_ROLES: UserRole[] = [ROLE_VIEWER, ROLE_PROVISIONER, ROLE_ADMIN];
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  'runops.viewer': 'Visualizador',
-  'runops.provisioner': 'Provisionador',
-  'runops.admin': 'Administrador',
+  'runops.viewer': 'Viewer',
+  'runops.provisioner': 'Provisioner',
+  'runops.admin': 'Admin',
 };
 
 export function canProvision(role: UserRole) {

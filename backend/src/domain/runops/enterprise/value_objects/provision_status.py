@@ -6,6 +6,3 @@ class ProvisionStatus(str, Enum):
     RUNNING = "running"
     SUCCESS = "success"
     FAILED = "failed"
-
-    def is_terminal(self) -> bool:
-        return self in (ProvisionStatus.SUCCESS, ProvisionStatus.FAILED)

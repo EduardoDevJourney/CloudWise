@@ -1,9 +1,12 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 
 from core.either import Either, Left, Right
-
-from domain.cloudwise.enterprise.entities.cost_dim import CostDim
+from domain.cloudwise.application.repositories.costs_repository import (
+    CostDimsRepository,
+    CostRecordsRepository,
+)
 from domain.cloudwise.enterprise.entities.cost_record import CostRecord
 
 
@@ -54,7 +57,7 @@ class CostFilters:
 
 
 class GetCostsUseCase:
-    def __init__(self, cost_repo: object) -> None:
+    def __init__(self, cost_repo: CostRecordsRepository) -> None:
         self._cost_repo = cost_repo
 
     async def execute(
@@ -68,7 +71,7 @@ class GetCostsUseCase:
 
 
 class GetDashboardUseCase:
-    def __init__(self, cost_repo: object, dim_repo: object) -> None:
+    def __init__(self, cost_repo: CostRecordsRepository, dim_repo: CostDimsRepository) -> None:
         self._cost_repo = cost_repo
         self._dim_repo = dim_repo
 
@@ -78,38 +81,31 @@ class GetDashboardUseCase:
         filters = filters or CostFilters()
         if (error := filters.validate()) is not None:
             return Left(error)
-        records: list[CostRecord] = [
-            r for r in await self._cost_repo.list_all() if filters.matches(r)
-        ]
-        dims: list[CostDim] = [
+        records = [r for r in await self._cost_repo.list_all() if filters.matches(r)]
+        dims = [
             d
             for d in await self._dim_repo.list_all()
             if filters.service is None or d.service_name == filters.service
         ]
 
-        by_date: dict[str, dict[str, float]] = {}
+        by_date: defaultdict[str, defaultdict[str, float]] = defaultdict(lambda: defaultdict(float))
         subscription_ids: set[str] = set()
-        service_totals: dict[str, float] = {}
+        service_totals: defaultdict[str, float] = defaultdict(float)
 
         for record in records:
-            date_key = record.record_date.isoformat()
             subscription_ids.add(record.subscription_id)
-            by_date.setdefault(date_key, {})
-            by_date[date_key][record.resource_type] = (
-                by_date[date_key].get(record.resource_type, 0) + record.cost
-            )
-            service_totals[record.resource_type] = (
-                service_totals.get(record.resource_type, 0) + record.cost
-            )
+            by_date[record.record_date.isoformat()][record.resource_type] += record.cost
+            service_totals[record.resource_type] += record.cost
 
+        # services with no cost in the period still show up in the ranking
         for dim in dims:
-            service_totals[dim.service_name] = service_totals.get(dim.service_name, 0)
+            service_totals.setdefault(dim.service_name, 0.0)
 
         series = [
             CostSeriesDay(
                 date=date_key,
                 total_cost=sum(services.values()),
-                by_service=services,
+                by_service=dict(services),
             )
             for date_key, services in sorted(by_date.items())
         ]

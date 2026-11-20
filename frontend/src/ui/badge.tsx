@@ -1,6 +1,5 @@
 import { cva } from 'class-variance-authority';
 
-import { cx } from '@ui/variants';
 import type { ProvisionStatus } from '@core/types/api';
 
 const badgeVariants = cva(
@@ -31,20 +30,16 @@ const dotVariants = cva('h-1.5 w-1.5 rounded-full', {
   },
 });
 
-export const STATUS_LABELS: Record<ProvisionStatus, string> = {
-  pending: 'Pendente',
-  running: 'Executando',
-  success: 'Sucesso',
-  failed: 'Falhou',
+const STATUS_LABELS: Record<ProvisionStatus, string> = {
+  pending: 'Pending',
+  running: 'Running',
+  success: 'Success',
+  failed: 'Failed',
 };
 
-type StatusBadgeProps = {
-  status: ProvisionStatus;
-};
-
-export function StatusBadge({ status }: StatusBadgeProps) {
+export function StatusBadge({ status }: { status: ProvisionStatus }) {
   return (
-    <span data-slot="badge" data-variant={status} className={cx(badgeVariants({ status }))}>
+    <span data-variant={status} className={badgeVariants({ status })}>
       <span aria-hidden="true" className={dotVariants({ status })} />
       {STATUS_LABELS[status]}
     </span>

@@ -1,7 +1,8 @@
 import os
 import tempfile
+from datetime import UTC, datetime
 
-# Isola os testes: banco SQLite temporário e modo desenvolvimento, independente do .env.
+# has to run before the app is imported: throwaway SQLite db, dev mode, ignores the real .env
 _db_dir = tempfile.mkdtemp(prefix="cloudwise-tests-")
 os.environ["DATABASE_URL"] = f"sqlite:///{_db_dir}/test.db"
 os.environ["APP_ENV"] = "development"
@@ -33,11 +34,9 @@ async def client(app):
 
 @pytest.fixture
 def login():
-    """Devolve headers de dev para o usuário, gravando o papel dele no banco."""
+    """Returns dev headers for the user, storing their role in the database."""
 
     def _login(user_id: str, role: str, active: bool = True) -> dict[str, str]:
-        from datetime import datetime
-
         with Session(engine) as session:
             session.merge(
                 UserModel(
@@ -45,7 +44,7 @@ def login():
                     email=f"{user_id}@test.local",
                     role=role,
                     active=active,
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(UTC),
                 )
             )
             session.commit()

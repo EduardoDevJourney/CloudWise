@@ -1,14 +1,12 @@
 import base64
 import json
-from dataclasses import dataclass
-
 from collections.abc import Callable
+from dataclasses import dataclass
 
 from fastapi import Depends, HTTPException, Request
 from sqlmodel import Session
 
 from domain.auth.application.use_cases.manage_users import ResolveUserUseCase
-from domain.auth.roles import ROLE_ADMIN, ROLE_PROVISIONER, ROLE_VIEWER  # noqa: F401
 from infra.config import get_settings
 from infra.database.repositories.sql_repositories import SQLUsersRepository
 from infra.database.session import get_session
@@ -50,9 +48,8 @@ def _parse_dev_headers(request: Request) -> AuthUser | None:
 async def get_current_user(
     request: Request, session: Session = Depends(get_session)
 ) -> AuthUser:
-    # Autenticação: o Easy Auth do App Service valida o token e repassa o principal
-    # (headers X-Dev-* só valem em desenvolvimento). Autorização: o papel vem da
-    # tabela `users` do Cloud Wise; os papéis do token são ignorados.
+    # App Service Easy Auth validates the token; roles come from our `users` table,
+    # whatever roles the token carries are ignored.
     identity = _parse_principal_header(request) or _parse_dev_headers(request)
     if identity is None:
         raise HTTPException(status_code=401, detail="Authentication required")

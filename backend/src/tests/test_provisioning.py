@@ -30,7 +30,6 @@ async def _create_and_get(client, login, user):
     return (await client.get(f"/api/v1/runops/status/{created.json()['id']}", headers=headers)).json()
 
 
-@pytest.mark.asyncio
 async def test_background_run_marks_success(client: AsyncClient, login, monkeypatch):
     monkeypatch.setattr(f"{CTRL}.PulumiService", SuccessRunner)
     body = await _create_and_get(client, login, "runner-ok")
@@ -43,7 +42,6 @@ async def test_background_run_marks_success(client: AsyncClient, login, monkeypa
     }
 
 
-@pytest.mark.asyncio
 async def test_runner_failure_is_recorded_with_message(client: AsyncClient, login, monkeypatch):
     monkeypatch.setattr(f"{CTRL}.PulumiService", FailingRunner)
     body = await _create_and_get(client, login, "runner-fail")
@@ -51,7 +49,6 @@ async def test_runner_failure_is_recorded_with_message(client: AsyncClient, logi
     assert "quota exceeded" in body["error_message"]
 
 
-@pytest.mark.asyncio
 async def test_unexpected_crash_never_leaves_request_running(client: AsyncClient, login, monkeypatch):
     async def boom(self, provision_id):
         raise RuntimeError("db connection lost")
@@ -92,7 +89,6 @@ class VerboseFailingRunner:
         )
 
 
-@pytest.mark.asyncio
 async def test_long_pulumi_error_is_summarized(client: AsyncClient, login, monkeypatch):
     monkeypatch.setattr(f"{CTRL}.PulumiService", VerboseFailingRunner)
     body = await _create_and_get(client, login, "runner-verbose")
@@ -106,4 +102,4 @@ def test_summarize_error_truncates_and_has_fallback():
 
     assert len(summarize_error("error: " + "x" * 2000)) == MAX_LENGTH
     assert summarize_error("a\nb\nc\nd\ne") == "c | d | e"
-    assert summarize_error("") == "Falha desconhecida no provisionamento"
+    assert summarize_error("") == "Unknown provisioning failure"

@@ -13,6 +13,5 @@ export const queryKeys = createQueryKeyStore({
     requests: null,
     templates: null,
     policy: null,
-    status: (id: string) => [id],
   },
 });

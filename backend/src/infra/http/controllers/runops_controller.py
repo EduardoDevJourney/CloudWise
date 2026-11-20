@@ -3,6 +3,7 @@ import logging
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlmodel import Session
 
+from domain.auth.roles import ROLE_ADMIN, ROLE_PROVISIONER
 from domain.runops.application.errors.not_allowed_error import NotAllowedError
 from domain.runops.application.errors.policy_violation_error import PolicyViolationError
 from domain.runops.application.errors.resource_not_found_error import ResourceNotFoundError
@@ -11,11 +12,12 @@ from domain.runops.application.use_cases.create_provision_request import (
     CreateProvisionRequestUseCase,
 )
 from domain.runops.application.use_cases.execute_provision import ExecuteProvisionUseCase
-from domain.runops.application.use_cases.list_templates import ListTemplatesUseCase
 from domain.runops.application.use_cases.get_provision_status import (
     GetProvisionStatusUseCase,
     ListProvisionRequestsUseCase,
 )
+from domain.runops.application.use_cases.list_templates import ListTemplatesUseCase
+from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus
 from infra.database.repositories.sql_repositories import (
     SQLProvisionRequestsRepository,
     SQLTemplatesRepository,
@@ -27,14 +29,7 @@ from infra.http.dtos.api_dtos import (
     ProvisionRequestReadDTO,
     TemplateReadDTO,
 )
-from infra.http.middleware.easy_auth import (
-    ROLE_ADMIN,
-    ROLE_PROVISIONER,
-    AuthUser,
-    get_current_user,
-    require_role,
-)
-from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus
+from infra.http.middleware.easy_auth import AuthUser, get_current_user, require_role
 from infra.pulumi.policy_loader import load_policy
 from infra.pulumi.pulumi_service import PulumiService
 
@@ -62,13 +57,16 @@ async def _mark_failed(provision_id: str, reason: str) -> None:
     with Session(engine) as session:
         repo = SQLProvisionRequestsRepository(session)
         request = await repo.find_by_id(provision_id)
-        if request is not None and request.status in (ProvisionStatus.PENDING, ProvisionStatus.RUNNING):
+        if request is not None and request.status in (
+            ProvisionStatus.PENDING,
+            ProvisionStatus.RUNNING,
+        ):
             request.fail(reason)
             await repo.save(request)
 
 
 async def _run_provision(provision_id: str) -> None:
-    # Tarefa em segundo plano: nenhuma exceção pode escapar nem deixar o pedido em RUNNING.
+    # Background task: nothing may escape or leave the request stuck in RUNNING.
     try:
         with Session(engine) as session:
             provision_repo = SQLProvisionRequestsRepository(session)

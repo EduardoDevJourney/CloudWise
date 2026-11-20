@@ -15,30 +15,30 @@ function renderAsAdmin() {
 }
 
 describe('UserTable', () => {
-  it('lista usuários e impede o admin de alterar a si mesmo', async () => {
+  it('lists users and stops the admin from changing themselves', async () => {
     renderAsAdmin();
     const selfRow = (await screen.findByText('dev-user@dev.local')).closest('tr')!;
     expect(within(selfRow).getByRole('combobox')).toBeDisabled();
-    expect(within(selfRow).getByRole('button', { name: 'Bloquear' })).toBeDisabled();
+    expect(within(selfRow).getByRole('button', { name: 'Block' })).toBeDisabled();
   });
 
-  it('troca o papel de outro usuário', async () => {
+  it('changes the role of another user', async () => {
     const user = userEvent.setup();
     renderAsAdmin();
-    const select = await screen.findByLabelText('Papel de ana@corp.com');
+    const select = await screen.findByLabelText('Role of ana@corp.com');
 
     await user.selectOptions(select, 'runops.provisioner');
 
-    await waitFor(() => expect(screen.getByLabelText('Papel de ana@corp.com')).toHaveValue('runops.provisioner'));
+    await waitFor(() => expect(screen.getByLabelText('Role of ana@corp.com')).toHaveValue('runops.provisioner'));
   });
 
-  it('bloqueia e desbloqueia um usuário', async () => {
+  it('blocks and unblocks a user', async () => {
     const user = userEvent.setup();
     renderAsAdmin();
     const row = (await screen.findByText('ana@corp.com')).closest('tr')!;
 
-    await user.click(within(row).getByRole('button', { name: 'Bloquear' }));
-    expect(await within(row).findByRole('button', { name: 'Desbloquear' })).toBeInTheDocument();
-    expect(within(row).getByText('Bloqueado')).toBeInTheDocument();
+    await user.click(within(row).getByRole('button', { name: 'Block' }));
+    expect(await within(row).findByRole('button', { name: 'Unblock' })).toBeInTheDocument();
+    expect(within(row).getByText('Blocked')).toBeInTheDocument();
   });
 });

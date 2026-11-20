@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     pulumi_stack: str = "dev"
     pulumi_state_dir: str = "infra/pulumi/.pulumi"
     pulumi_config_passphrase: str = ""
-    admin_emails: str = ""  # e-mails separados por vírgula
+    admin_emails: str = ""  # comma-separated emails
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 
     @model_validator(mode="after")

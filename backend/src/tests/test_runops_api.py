@@ -19,7 +19,6 @@ def no_real_provisioning(monkeypatch):
     monkeypatch.setattr("infra.http.controllers.runops_controller._run_provision", _noop)
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "path",
     ["/api/v1/runops/requests", "/api/v1/runops/status/x", "/api/v1/cloudwise/dashboard", "/api/v1/cloudwise/costs"],
@@ -28,25 +27,21 @@ async def test_requests_without_identity_return_401(client: AsyncClient, path: s
     assert (await client.get(path)).status_code == 401
 
 
-@pytest.mark.asyncio
 async def test_create_without_identity_returns_401(client: AsyncClient):
     assert (await client.post("/api/v1/runops/provision", json=PAYLOAD)).status_code == 401
 
 
-@pytest.mark.asyncio
 async def test_dev_headers_ignored_outside_development(client: AsyncClient, monkeypatch):
     monkeypatch.setattr(get_settings(), "app_env", "production")
     response = await client.get("/api/v1/runops/requests", headers={"X-Dev-User-Id": "u1"})
     assert response.status_code == 401
 
 
-@pytest.mark.asyncio
 async def test_viewer_gets_403_on_create(client: AsyncClient, login):
     response = await client.post("/api/v1/runops/provision", json=PAYLOAD, headers=login("u1", "runops.viewer"))
     assert response.status_code == 403
 
 
-@pytest.mark.asyncio
 async def test_provisioner_sees_only_own_requests_and_admin_sees_all(client: AsyncClient, login):
     created = await client.post("/api/v1/runops/provision", json=PAYLOAD, headers=login("owner-1", "runops.provisioner"))
     assert created.status_code == 202
@@ -67,7 +62,6 @@ async def test_provisioner_sees_only_own_requests_and_admin_sees_all(client: Asy
     assert shown.status_code == 200
 
 
-@pytest.mark.asyncio
 async def test_policy_violation_returns_422_and_creates_nothing(client: AsyncClient, login):
     bad = {**PAYLOAD, "location": "westeurope", "environment": "qa"}
     headers = login("policy-user", "runops.provisioner")
@@ -78,7 +72,6 @@ async def test_policy_violation_returns_422_and_creates_nothing(client: AsyncCli
     assert listed.json() == []
 
 
-@pytest.mark.asyncio
 async def test_templates_catalog_and_policy_endpoints(client: AsyncClient, login):
     headers = login("u1", "runops.provisioner")
     templates = (await client.get("/api/v1/runops/templates", headers=headers)).json()

@@ -23,14 +23,19 @@ TEMPLATES = [
         "name": "Resource Group + Storage Account",
         "azure_sku": "Standard_LRS",
         "slug": "rg-storage",
-        "description": "Resource Group com Storage Account (HTTPS, TLS 1.2, sem acesso público; SKU por ambiente).",
+        "description": (
+            "Resource Group with a Storage Account "
+            "(HTTPS only, TLS 1.2, no public access; SKU per environment)."
+        ),
     },
     {
         "id": "00000000-0000-4000-8000-000000000002",
         "name": "Resource Group + Key Vault",
         "azure_sku": "standard",
         "slug": "rg-keyvault",
-        "description": "Resource Group com Key Vault (RBAC, soft-delete; purge protection só em prod).",
+        "description": (
+            "Resource Group with a Key Vault (RBAC, soft-delete; purge protection in prod only)."
+        ),
     },
 ]
 
@@ -41,7 +46,9 @@ def seed_database(session: Session) -> None:
         if template["slug"] not in existing_slugs:
             session.add(TemplateModel(params_schema=json.dumps(_PARAMS_SCHEMA), **template))
         else:
-            existing = session.exec(select(TemplateModel).where(TemplateModel.slug == template["slug"])).first()
+            existing = session.exec(
+                select(TemplateModel).where(TemplateModel.slug == template["slug"])
+            ).first()
             if existing and not existing.description:
                 existing.description = template["description"]
                 session.add(existing)
@@ -50,27 +57,25 @@ def seed_database(session: Session) -> None:
     if session.exec(select(CostRecordModel)).first():
         return
 
-    seed_path = Path(__file__).parent / "seed_data" / "costs.json"
-    if seed_path.exists():
-        raw = json.loads(seed_path.read_text())
-        for i, item in enumerate(raw):
-            session.add(
-                CostRecordModel(
-                    id=item["id"],
-                    subscription_id=item["subscription_id"],
-                    cost=item["cost"],
-                    record_date=date.fromisoformat(item["date"]),
-                    resource_type=item["resource_type"],
-                    tags=json.dumps(item.get("tags", {})),
-                )
+    raw = json.loads((Path(__file__).parent / "seed_data" / "costs.json").read_text())
+    for i, item in enumerate(raw):
+        session.add(
+            CostRecordModel(
+                id=item["id"],
+                subscription_id=item["subscription_id"],
+                cost=item["cost"],
+                record_date=date.fromisoformat(item["date"]),
+                resource_type=item["resource_type"],
+                tags=json.dumps(item.get("tags", {})),
             )
-            session.add(
-                CostDimModel(
-                    id=f"22222222-2222-4222-8222-2222222222{i:02d}",
-                    record_date=date.fromisoformat(item["date"]),
-                    category=item.get("category", "compute"),
-                    service_name=item["resource_type"],
-                )
+        )
+        session.add(
+            CostDimModel(
+                id=f"22222222-2222-4222-8222-2222222222{i:02d}",
+                record_date=date.fromisoformat(item["date"]),
+                category=item.get("category", "compute"),
+                service_name=item["resource_type"],
             )
+        )
 
     session.commit()
