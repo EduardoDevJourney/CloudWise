@@ -12,7 +12,7 @@ request_id = config.get("request_id") or "0000"
 
 violations = policy.validate_request(resource_name, environment, location)
 if violations:
-    raise Exception("Policy violated: " + "; ".join(violations))
+    raise ValueError("Policy violated: " + "; ".join(violations))
 
 suffix = request_id.replace("-", "")
 tags = policy.standard_tags(environment, owner, template)
@@ -27,4 +27,4 @@ elif template == "rg-keyvault":
     pulumi.export("resource_group_name", rg.name)
     pulumi.export("key_vault_name", kv.name)
 else:
-    raise Exception(f"Unknown template:{template}")
+    raise ValueError(f"Unknown template: {template}")

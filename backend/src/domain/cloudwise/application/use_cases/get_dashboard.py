@@ -8,8 +8,6 @@ from domain.cloudwise.enterprise.value_objects.cost_filters import CostFilters, 
 
 GRANULARITIES = ("day", "month")
 
-DashboardSummary = CostSummary
-
 
 @dataclass(frozen=True, slots=True)
 class CostSeriesDay:
@@ -22,7 +20,7 @@ class CostSeriesDay:
 class DashboardResult:
     granularity: str
     series: list[CostSeriesDay]
-    summary: DashboardSummary
+    summary: CostSummary
 
 
 class GetCostsUseCase:

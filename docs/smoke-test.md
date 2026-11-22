@@ -12,11 +12,17 @@
 
 1. `cp .env.example .env`
 2. `docker compose up -d`
-3. `cd backend && poetry install && poetry run uvicorn infra.http.main:app --reload --app-dir src --port 8000`
-4. `cd frontend && npm install && npm run dev`
-5. Open `http://localhost:5173/dashboard` and check the cost cards and charts (sample data)
-6. Go to `/runops` and provision the `rg-storage` template
-7. Watch the request move through the list until it succeeds or fails
+3. `cd backend && poetry install && poetry run alembic upgrade head`
+4. `env PYTHONPATH=src poetry run python -m infra.database.seed` (demo costs and dev users)
+5. `poetry run uvicorn infra.http.main:app --reload --app-dir src --port 8000`
+6. `cd frontend && npm install && npm run dev`
+7. Open `http://localhost:5173/dashboard` and check the cost cards and charts (sample data)
+8. Go to `/runops` and provision the `rg-storage` template
+9. Watch the request move through the list until it succeeds or fails
+
+To rebuild the database from scratch: `docker compose down -v && docker compose up -d`, then steps 3 and 4.
+`poetry run alembic current` and `poetry run alembic history` show the applied revisions;
+`poetry run alembic downgrade base` followed by `upgrade head` is safe on a clean database.
 
 ## Endpoints
 

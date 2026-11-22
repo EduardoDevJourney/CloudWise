@@ -3,7 +3,13 @@ import pulumi_azure_native as azure
 from . import policy
 
 
-def create(resource_name: str, environment: str, suffix: str, resource_group, tags: dict[str, str]):
+def create(
+    resource_name: str,
+    environment: str,
+    suffix: str,
+    resource_group: azure.resources.ResourceGroup,
+    tags: dict[str, str],
+):
     tenant_id = azure.authorization.get_client_config().tenant_id
     return azure.keyvault.Vault(
         "kv",

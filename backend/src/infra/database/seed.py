@@ -6,47 +6,15 @@ from datetime import UTC, date, datetime, timedelta
 from sqlmodel import Session, select
 
 from domain.auth.roles import ROLE_ADMIN, ROLE_PROVISIONER, ROLE_VIEWER
+from infra.config import get_settings
+from infra.database.session import engine
 from infra.database.sqlmodel.models import (
     DimAssinaturaModel,
     DimDataModel,
     DimServicoModel,
     FatoCustoModel,
-    TemplateModel,
     UserModel,
 )
-
-
-_PARAMS_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "resource_name": {"type": "string"},
-        "environment": {"type": "string"},
-        "location": {"type": "string"},
-    },
-    "required": ["resource_name", "environment", "location"],
-}
-
-TEMPLATES = [
-    {
-        "id": "00000000-0000-4000-8000-000000000001",
-        "name": "Resource Group + Storage Account",
-        "azure_sku": "Standard_LRS",
-        "slug": "rg-storage",
-        "description": (
-            "Resource Group with a Storage Account "
-            "(HTTPS only, TLS 1.2, no public access; SKU per environment)."
-        ),
-    },
-    {
-        "id": "00000000-0000-4000-8000-000000000002",
-        "name": "Resource Group + Key Vault",
-        "azure_sku": "standard",
-        "slug": "rg-keyvault",
-        "description": (
-            "Resource Group with a Key Vault (RBAC, soft-delete; purge protection in prod only)."
-        ),
-    },
-]
 
 
 DEV_USERS = [
@@ -128,18 +96,18 @@ def seed_costs(session: Session) -> None:
     session.commit()
 
 
-def seed_database(session: Session) -> None:
-    existing_slugs = set(session.exec(select(TemplateModel.slug)).all())
-    for template in TEMPLATES:
-        if template["slug"] not in existing_slugs:
-            session.add(TemplateModel(params_schema=json.dumps(_PARAMS_SCHEMA), **template))
-        else:
-            existing = session.exec(
-                select(TemplateModel).where(TemplateModel.slug == template["slug"])
-            ).first()
-            if existing and not existing.description:
-                existing.description = template["description"]
-                session.add(existing)
-    session.commit()
-
+def seed_demo(session: Session) -> None:
+    seed_dev_users(session)
     seed_costs(session)
+
+
+def main() -> None:
+    if get_settings().app_env != "development":
+        raise SystemExit("The demo seed only runs with APP_ENV=development.")
+    with Session(engine) as session:
+        seed_demo(session)
+    print("Demo seed done: dev users and sample costs.")
+
+
+if __name__ == "__main__":
+    main()

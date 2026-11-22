@@ -1,6 +1,10 @@
+from types import SimpleNamespace
+
+import pytest
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from domain.auth.roles import ROLE_ADMIN, ROLE_PROVISIONER, ROLE_VIEWER
+from infra.database import seed
 from infra.database.seed import seed_dev_users
 from infra.database.sqlmodel.models import UserModel
 
@@ -35,3 +39,10 @@ def test_does_not_overwrite_existing_users():
 
         assert session.get(UserModel, "dev-viewer").role == ROLE_PROVISIONER
         assert len(session.exec(select(UserModel)).all()) == 3
+
+
+def test_demo_seed_refuses_to_run_outside_development(monkeypatch):
+    monkeypatch.setattr(seed, "get_settings", lambda: SimpleNamespace(app_env="production"))
+
+    with pytest.raises(SystemExit):
+        seed.main()

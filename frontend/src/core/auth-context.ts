@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 import type { UserRole } from '@core/types/api';
 
-export type AuthSession = {
+type AuthSession = {
   userId: string;
   email: string;
   role: UserRole;

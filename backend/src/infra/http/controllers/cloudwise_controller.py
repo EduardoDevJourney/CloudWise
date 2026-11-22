@@ -7,13 +7,13 @@ from domain.cloudwise.application.use_cases.get_dashboard import GetCostsUseCase
 from domain.cloudwise.enterprise.value_objects.cost_filters import CostFilters
 from infra.database.repositories.sql_repositories import SQLCostsRepository
 from infra.database.session import get_session
-from infra.http.middleware.easy_auth import AuthUser, get_current_user
 from infra.http.dtos.api_dtos import (
     CloudWiseDashboardDTO,
     CostRecordReadDTO,
     CostSeriesDayDTO,
     DashboardSummaryDTO,
 )
+from infra.http.middleware.easy_auth import AuthUser, get_current_user
 
 router = APIRouter(prefix="/cloudwise", tags=["cloudwise"])
 

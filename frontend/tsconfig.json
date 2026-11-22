@@ -17,12 +17,10 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./src/*"],
       "@core/*": ["./src/core/*"],
       "@ui/*": ["./src/ui/*"],
       "@features/*": ["./src/features/*"],
       "@layouts/*": ["./src/layouts/*"],
-      "@routes/*": ["./src/routes/*"],
       "@mocks/*": ["./src/mocks/*"]
     }
   },

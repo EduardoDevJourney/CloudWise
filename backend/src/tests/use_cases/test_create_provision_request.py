@@ -1,5 +1,3 @@
-import pytest
-
 from core.either import Left, Right
 from core.entities.unique_entity_id import UniqueEntityId
 from domain.runops.application.use_cases.create_provision_request import (
@@ -13,7 +11,6 @@ from tests.repositories.in_memory_runops_repositories import (
 )
 
 
-@pytest.mark.asyncio
 async def test_create_provision_request_success():
     provision_repo = InMemoryProvisionRequestsRepository()
     templates_repo = InMemoryTemplatesRepository()
@@ -42,7 +39,6 @@ async def test_create_provision_request_success():
     assert result.value.status.value == "pending"
 
 
-@pytest.mark.asyncio
 async def test_create_provision_request_forbidden_without_role():
     provision_repo = InMemoryProvisionRequestsRepository()
     templates_repo = InMemoryTemplatesRepository()

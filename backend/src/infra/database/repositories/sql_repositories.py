@@ -5,10 +5,10 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from core.entities.unique_entity_id import UniqueEntityId
+from domain.auth.enterprise.entities.user import User
 from domain.cloudwise.enterprise.entities.cost_record import CostRecord
 from domain.cloudwise.enterprise.value_objects.cost_aggregates import CostSeriesRow, CostSummary
 from domain.cloudwise.enterprise.value_objects.cost_filters import CostFilters
-from domain.auth.enterprise.entities.user import User
 from domain.runops.enterprise.entities.provision_request import ProvisionRequest
 from domain.runops.enterprise.entities.template import Template
 from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus

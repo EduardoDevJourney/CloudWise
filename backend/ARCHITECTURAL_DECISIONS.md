@@ -16,6 +16,12 @@
   continua normalizado por ser transacional.
 - Filtros e agregações rodam em SQL (joins e `GROUP BY`) no `SQLCostsRepository`.
 
+## Migrações
+
+- Schema versionado com Alembic; a API não cria nem altera tabelas na subida.
+- Dados de referência (catálogo de templates) entram por migração de dados; dados de demonstração
+  (custos de exemplo e usuários de teste) por comando explícito, só em `development`.
+
 ## Integrações Externas
 
 - Azure Easy Auth (headers `X-MS-CLIENT-PRINCIPAL*`)

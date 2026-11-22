@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from core.events.domain_event import DomainEvent
 from core.events.domain_events import DomainEvents

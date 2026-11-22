@@ -1,5 +1,6 @@
 import os
 import tempfile
+from pathlib import Path
 from datetime import UTC, datetime
 
 # has to run before the app is imported: throwaway SQLite db, dev mode, ignores the real .env
@@ -11,17 +12,32 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlmodel import Session
 
-from infra.database.seed import seed_database
-from infra.database.session import create_db_and_tables, engine
+from alembic import command
+from alembic.config import Config
+
+from infra.database.seed import seed_costs
+from infra.database.session import engine
 from infra.database.sqlmodel.models import UserModel
 from infra.http.main import create_app
 
 
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+
+
+def migrate(revision: str = "head", direction: str = "upgrade") -> None:
+    config = Config(str(BACKEND_DIR / "alembic.ini"))
+    getattr(command, direction)(config, revision)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def migrated_db():
+    migrate()
+    with Session(engine) as session:
+        seed_costs(session)
+
+
 @pytest.fixture
 def app():
-    create_db_and_tables()
-    with Session(engine) as session:
-        seed_database(session)
     return create_app()
 
 

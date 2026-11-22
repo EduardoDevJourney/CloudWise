@@ -12,20 +12,12 @@ export function defineApiRouteFn(path: string) {
 }
 
 async function parseError(response: Response): Promise<FriendlyError> {
-  try {
-    const data = await response.json();
-    return {
-      title: data.title ?? 'Request failed',
-      detail: data.detail ?? response.statusText,
-      status: response.status,
-    };
-  } catch {
-    return {
-      title: 'Request failed',
-      detail: response.statusText,
-      status: response.status,
-    };
-  }
+  const data = await response.json().catch(() => null);
+  return {
+    title: data?.title ?? 'Request failed',
+    detail: data?.detail ?? response.statusText,
+    status: response.status,
+  };
 }
 
 export async function httpResource<T>(input: RequestInfo, init?: RequestInit): Promise<T> {

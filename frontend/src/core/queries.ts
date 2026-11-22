@@ -41,7 +41,7 @@ export const runopsRequestsQuery = queryOptions({
   queryFn: fetchProvisionRequests,
   staleTime: 5_000,
   refetchInterval: (query) =>
-    query.state.data?.some((r) => !TERMINAL.includes(r.status)) ? 3000 : false,
+    query.state.data?.some((r) => !TERMINAL.includes(r.status)) ? 3_000 : false,
 });
 
 export const runopsTemplatesQuery = queryOptions({

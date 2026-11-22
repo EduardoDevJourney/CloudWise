@@ -3,7 +3,13 @@ import pulumi_azure_native as azure
 from . import policy
 
 
-def create(resource_name: str, environment: str, suffix: str, resource_group, tags: dict[str, str]):
+def create(
+    resource_name: str,
+    environment: str,
+    suffix: str,
+    resource_group: azure.resources.ResourceGroup,
+    tags: dict[str, str],
+):
     return azure.storage.StorageAccount(
         "sa",
         account_name=policy.storage_account_name(resource_name, environment, suffix),

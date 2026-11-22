@@ -2,11 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session
 
 from infra.config import get_settings
-from infra.database.seed import seed_database, seed_dev_users
-from infra.database.session import create_db_and_tables, engine
 from infra.events.subscribers.logging_subscriber import register_subscribers
 from infra.http.controllers.auth_controller import router as auth_router
 from infra.http.controllers.cloudwise_controller import router as cloudwise_router
@@ -17,11 +14,6 @@ from infra.http.controllers.runops_controller import router as runops_router
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     register_subscribers()
-    create_db_and_tables()
-    with Session(engine) as session:
-        seed_database(session)
-        if get_settings().app_env == "development":
-            seed_dev_users(session)
     yield
 
 
