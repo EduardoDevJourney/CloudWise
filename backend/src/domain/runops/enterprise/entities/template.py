@@ -1,8 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from core.entities.entity import Entity
-from core.entities.unique_entity_id import UniqueEntityId
 
 
 @dataclass(eq=False, kw_only=True)

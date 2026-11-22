@@ -1,7 +1,7 @@
 import os
 import tempfile
-from pathlib import Path
 from datetime import UTC, datetime
+from pathlib import Path
 
 # has to run before the app is imported: throwaway SQLite db, dev mode, ignores the real .env
 _db_dir = tempfile.mkdtemp(prefix="cloudwise-tests-")
@@ -9,11 +9,10 @@ os.environ["DATABASE_URL"] = f"sqlite:///{_db_dir}/test.db"
 os.environ["APP_ENV"] = "development"
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-from sqlmodel import Session
-
 from alembic import command
 from alembic.config import Config
+from httpx import ASGITransport, AsyncClient
+from sqlmodel import Session
 
 from infra.database.seed import seed_costs
 from infra.database.session import engine
