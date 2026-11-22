@@ -30,9 +30,9 @@ function CreatedResources({ outputs }: { outputs: Record<string, string> }) {
 export function RequestList() {
   const { data, isLoading, isError, error } = useQuery(runopsRequestsQuery);
 
-  if (isLoading) return <Loading label="Loading requests..." />;
+  if (isLoading) return <Loading label="Carregando solicitações..." />;
   if (isError) return <p className="text-sm text-red-600">{describeError(error)}</p>;
-  if (!data?.length) return <p className="text-sm text-slate-500">No requests yet.</p>;
+  if (!data?.length) return <p className="text-sm text-slate-500">Nenhuma solicitação ainda.</p>;
 
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -42,9 +42,9 @@ export function RequestList() {
             <th className="px-4 py-3">ID</th>
             <th className="px-4 py-3">Template</th>
             <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Created resources</th>
-            <th className="px-4 py-3">Created at</th>
-            <th className="px-4 py-3">Duration</th>
+            <th className="px-4 py-3">Recursos criados</th>
+            <th className="px-4 py-3">Criado em</th>
+            <th className="px-4 py-3">Duração</th>
           </tr>
         </thead>
         <tbody>
@@ -63,7 +63,7 @@ export function RequestList() {
               <td className="px-4 py-3">
                 <CreatedResources outputs={item.outputs} />
               </td>
-              <td className="px-4 py-3">{new Date(item.created_at).toLocaleString('en-US')}</td>
+              <td className="px-4 py-3">{new Date(item.created_at).toLocaleString('pt-BR')}</td>
               <td className="px-4 py-3">
                 {item.execution_seconds === null ? '—' : `${item.execution_seconds}s`}
               </td>

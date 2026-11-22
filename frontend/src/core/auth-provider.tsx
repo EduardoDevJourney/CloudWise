@@ -18,28 +18,28 @@ function AccessMessage({ title, text }: { title: string; text: string }) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { data, isLoading, error } = useQuery(meQuery);
 
-  if (isLoading) return <Loading label="Checking access..." />;
+  if (isLoading) return <Loading label="Verificando acesso..." />;
 
   if (error || !data) {
     const status = (error as FriendlyError | null)?.status;
     if (status === 403) {
       return (
         <AccessMessage
-          title="Access blocked"
-          text="Your account has been blocked. Contact a Cloud Wise admin."
+          title="Acesso bloqueado"
+          text="Sua conta foi bloqueada. Procure um administrador do Cloud Wise."
         />
       );
     }
     if (status === 401) {
       return (
         <AccessMessage
-          title="Not authenticated"
-          text="Sign in with your company account to use Cloud Wise."
+          title="Não autenticado"
+          text="Entre com sua conta corporativa para acessar o Cloud Wise."
         />
       );
     }
     return (
-      <AccessMessage title="Failed to load" text="We couldn't verify your access. Try again." />
+      <AccessMessage title="Erro ao carregar" text="Não foi possível verificar seu acesso. Tente novamente." />
     );
   }
 

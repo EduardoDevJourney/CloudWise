@@ -1,18 +1,22 @@
 import json
 from datetime import date
 
+from sqlalchemy import func
 from sqlmodel import Session, select
 
 from core.entities.unique_entity_id import UniqueEntityId
-from domain.cloudwise.enterprise.entities.cost_dim import CostDim
 from domain.cloudwise.enterprise.entities.cost_record import CostRecord
+from domain.cloudwise.enterprise.value_objects.cost_aggregates import CostSeriesRow, CostSummary
+from domain.cloudwise.enterprise.value_objects.cost_filters import CostFilters
 from domain.auth.enterprise.entities.user import User
 from domain.runops.enterprise.entities.provision_request import ProvisionRequest
 from domain.runops.enterprise.entities.template import Template
 from domain.runops.enterprise.value_objects.provision_status import ProvisionStatus
 from infra.database.sqlmodel.models import (
-    CostDimModel,
-    CostRecordModel,
+    DimAssinaturaModel,
+    DimDataModel,
+    DimServicoModel,
+    FatoCustoModel,
     ProvisionRequestModel,
     TemplateModel,
     UserModel,
@@ -117,66 +121,94 @@ class SQLTemplatesRepository:
         self._session.commit()
 
 
-class SQLCostRecordsRepository:
+class SQLCostsRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    async def list_all(self) -> list[CostRecord]:
-        models = self._session.exec(select(CostRecordModel)).all()
+    @staticmethod
+    def _join(statement, filters: CostFilters):
+        statement = (
+            statement.select_from(FatoCustoModel)
+            .join(DimDataModel, FatoCustoModel.data_id == DimDataModel.data_id)
+            .join(DimServicoModel, FatoCustoModel.servico_id == DimServicoModel.servico_id)
+            .join(
+                DimAssinaturaModel,
+                FatoCustoModel.assinatura_id == DimAssinaturaModel.assinatura_id,
+            )
+        )
+        if filters.service:
+            statement = statement.where(DimServicoModel.nome == filters.service)
+        if filters.subscription_id:
+            statement = statement.where(DimAssinaturaModel.codigo == filters.subscription_id)
+        if filters.start:
+            statement = statement.where(DimDataModel.data >= filters.start)
+        if filters.end:
+            statement = statement.where(DimDataModel.data <= filters.end)
+        return statement
+
+    async def list_records(self, filters: CostFilters) -> list[CostRecord]:
+        statement = self._join(
+            select(
+                FatoCustoModel.id,
+                FatoCustoModel.custo,
+                FatoCustoModel.tags,
+                DimDataModel.data,
+                DimServicoModel.nome,
+                DimAssinaturaModel.codigo,
+            ),
+            filters,
+        ).order_by(DimDataModel.data, DimServicoModel.nome, DimAssinaturaModel.codigo)
         return [
             CostRecord(
-                id=UniqueEntityId(m.id),
-                subscription_id=m.subscription_id,
-                cost=m.cost,
-                record_date=m.record_date,
-                resource_type=m.resource_type,
-                tags=json.loads(m.tags),
+                id=UniqueEntityId(id_),
+                subscription_id=subscription,
+                cost=cost,
+                record_date=record_date,
+                resource_type=service,
+                tags=json.loads(tags),
             )
-            for m in models
+            for id_, cost, tags, record_date, service, subscription in self._session.exec(statement)
         ]
 
-    async def save_many(self, records: list[CostRecord]) -> None:
-        for record in records:
-            self._session.merge(
-                CostRecordModel(
-                    id=str(record.id),
-                    subscription_id=record.subscription_id,
-                    cost=record.cost,
-                    record_date=record.record_date,
-                    resource_type=record.resource_type,
-                    tags=json.dumps(record.tags),
-                )
+    async def series(self, filters: CostFilters, granularity: str) -> list[CostSeriesRow]:
+        period = DimDataModel.ano_mes if granularity == "month" else DimDataModel.data
+        statement = (
+            self._join(
+                select(period, DimServicoModel.nome, func.sum(FatoCustoModel.custo)), filters
             )
-        self._session.commit()
-
-
-class SQLCostDimsRepository:
-    def __init__(self, session: Session) -> None:
-        self._session = session
-
-    async def list_all(self) -> list[CostDim]:
-        models = self._session.exec(select(CostDimModel)).all()
+            .group_by(period, DimServicoModel.nome)
+            .order_by(period)
+        )
         return [
-            CostDim(
-                id=UniqueEntityId(m.id),
-                record_date=m.record_date,
-                category=m.category,
-                service_name=m.service_name,
+            CostSeriesRow(
+                period=value if isinstance(value, str) else value.isoformat(),
+                service=service,
+                total=total,
             )
-            for m in models
+            for value, service, total in self._session.exec(statement)
         ]
 
-    async def save_many(self, dims: list[CostDim]) -> None:
-        for dim in dims:
-            self._session.merge(
-                CostDimModel(
-                    id=str(dim.id),
-                    record_date=dim.record_date,
-                    category=dim.category,
-                    service_name=dim.service_name,
-                )
+    async def summary(self, filters: CostFilters) -> CostSummary:
+        total, subscriptions = self._session.exec(
+            self._join(
+                select(
+                    func.coalesce(func.sum(FatoCustoModel.custo), 0.0),
+                    func.count(func.distinct(FatoCustoModel.assinatura_id)),
+                ),
+                filters,
             )
-        self._session.commit()
+        ).one()
+        top = self._session.exec(
+            self._join(select(DimServicoModel.nome), filters)
+            .group_by(DimServicoModel.nome)
+            .order_by(func.sum(FatoCustoModel.custo).desc())
+            .limit(1)
+        ).first()
+        return CostSummary(
+            total_cost=total,
+            top_service=top or "n/a",
+            subscription_count=subscriptions,
+        )
 
 
 class SQLUsersRepository:

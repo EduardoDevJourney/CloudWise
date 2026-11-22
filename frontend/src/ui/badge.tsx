@@ -31,10 +31,10 @@ const dotVariants = cva('h-1.5 w-1.5 rounded-full', {
 });
 
 const STATUS_LABELS: Record<ProvisionStatus, string> = {
-  pending: 'Pending',
-  running: 'Running',
-  success: 'Success',
-  failed: 'Failed',
+  pending: 'Pendente',
+  running: 'Executando',
+  success: 'Sucesso',
+  failed: 'Falhou',
 };
 
 export function StatusBadge({ status }: { status: ProvisionStatus }) {

@@ -32,3 +32,18 @@ All under `/api/v1`.
 | `GET /runops/requests` | own requests (admin sees all) |
 | `GET /runops/templates`, `GET /runops/policy` | authenticated |
 | `GET /cloudwise/costs`, `GET /cloudwise/dashboard` | authenticated |
+
+## Cost star schema demo
+
+With the backend running, `GET /api/v1/cloudwise/dashboard?granularity=month` returns the same data
+grouped by month. To show the schema in SQL Server:
+
+```sql
+SELECT d.ano_mes, s.nome AS servico, SUM(f.custo) AS total
+FROM fact_custo f
+JOIN dim_data d ON d.data_id = f.data_id
+JOIN dim_servico s ON s.servico_id = f.servico_id
+JOIN dim_assinatura a ON a.assinatura_id = f.assinatura_id
+GROUP BY d.ano_mes, s.nome
+ORDER BY total DESC;
+```

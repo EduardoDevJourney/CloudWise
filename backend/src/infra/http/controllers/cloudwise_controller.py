@@ -3,12 +3,9 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
-from domain.cloudwise.application.use_cases.get_dashboard import (
-    CostFilters,
-    GetCostsUseCase,
-    GetDashboardUseCase,
-)
-from infra.database.repositories.sql_repositories import SQLCostDimsRepository, SQLCostRecordsRepository
+from domain.cloudwise.application.use_cases.get_dashboard import GetCostsUseCase, GetDashboardUseCase
+from domain.cloudwise.enterprise.value_objects.cost_filters import CostFilters
+from infra.database.repositories.sql_repositories import SQLCostsRepository
 from infra.database.session import get_session
 from infra.http.middleware.easy_auth import AuthUser, get_current_user
 from infra.http.dtos.api_dtos import (
@@ -36,7 +33,7 @@ async def get_costs(
     _user: AuthUser = Depends(get_current_user),
     filters: CostFilters = Depends(cost_filters),
 ) -> list[CostRecordReadDTO]:
-    use_case = GetCostsUseCase(SQLCostRecordsRepository(session))
+    use_case = GetCostsUseCase(SQLCostsRepository(session))
     result = await use_case.execute(filters)
     if result.is_left():
         raise HTTPException(status_code=422, detail=str(result.value))
@@ -59,12 +56,10 @@ async def get_dashboard(
     session: Session = Depends(get_session),
     _user: AuthUser = Depends(get_current_user),
     filters: CostFilters = Depends(cost_filters),
+    granularity: str = "day",
 ) -> CloudWiseDashboardDTO:
-    use_case = GetDashboardUseCase(
-        SQLCostRecordsRepository(session),
-        SQLCostDimsRepository(session),
-    )
-    outcome = await use_case.execute(filters)
+    use_case = GetDashboardUseCase(SQLCostsRepository(session))
+    outcome = await use_case.execute(filters, granularity)
     if outcome.is_left():
         raise HTTPException(status_code=422, detail=str(outcome.value))
     result = outcome.value

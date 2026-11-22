@@ -15,10 +15,10 @@ function DashboardPage() {
         <h1 className="text-2xl font-bold text-slate-900">Cloud Wise Dashboard</h1>
         <span
           data-testid="sample-data-badge"
-          title="Made-up costs used for demonstration"
+          title="Custos fictícios gerados para demonstração"
           className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800"
         >
-          Sample data
+          Dados de exemplo
         </span>
       </div>
       <CloudWiseDashboard />

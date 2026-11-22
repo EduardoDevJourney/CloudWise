@@ -45,10 +45,11 @@ Easy Auth (Azure App Service) authenticates; authorization lives in the `users` 
 - The first admin comes from `ADMIN_EMAILS` in `.env` (comma-separated emails).
 - Roles carried in the Entra ID token are ignored.
 - **Local development:** with `APP_ENV=development` the backend accepts the `X-Dev-User-Id` and
-  `X-Dev-User-Email` headers. The frontend sends `dev-user` / `dev-user@dev.local`
-  (see `frontend/src/core/http-resource.ts`), which becomes admin when listed in `ADMIN_EMAILS`.
-  To try another profile, change the email in that file (it joins as viewer) and promote it from the
-  **Users** page. Outside `development` these headers are ignored.
+  `X-Dev-User-Email` headers and seeds three users on startup: `dev-viewer`, `dev-provisioner` and
+  `dev-user` (admin). The frontend shows a user selector in the header (only in `npm run dev`) that
+  picks which of them it sends (see `frontend/src/core/dev-users.ts`). Roles are never overwritten by
+  the seed, so a promotion done in the **Users** page survives restarts. Outside `development` the
+  headers are ignored.
 - Outside `development`, `SECRET_KEY` and `PULUMI_CONFIG_PASSPHRASE` are required; the app won't start without them.
 - Existing databases get new nullable columns added on startup (minimal migration).
 

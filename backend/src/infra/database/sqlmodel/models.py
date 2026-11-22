@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Column, Date, DateTime, Float, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -30,24 +30,48 @@ class ProvisionRequestModel(SQLModel, table=True):
     finished_at: datetime | None = Field(default=None, sa_column=Column(DateTime, nullable=True))
 
 
-class CostRecordModel(SQLModel, table=True):
-    __tablename__ = "cost_records"
+class DimDataModel(SQLModel, table=True):
+    __tablename__ = "dim_data"
+
+    data_id: int = Field(sa_column=Column(Integer, primary_key=True, autoincrement=False))
+    data: date = Field(sa_column=Column(Date, nullable=False, unique=True))
+    ano: int = Field(sa_column=Column(Integer, nullable=False))
+    trimestre: int = Field(sa_column=Column(Integer, nullable=False))
+    mes: int = Field(sa_column=Column(Integer, nullable=False))
+    dia: int = Field(sa_column=Column(Integer, nullable=False))
+    dia_semana: int = Field(sa_column=Column(Integer, nullable=False))
+    ano_mes: str = Field(sa_column=Column(String(7), nullable=False, index=True))
+
+
+class DimServicoModel(SQLModel, table=True):
+    __tablename__ = "dim_servico"
+
+    servico_id: int = Field(sa_column=Column(Integer, primary_key=True, autoincrement=True))
+    nome: str = Field(sa_column=Column(String(255), nullable=False, unique=True))
+    categoria: str = Field(sa_column=Column(String(100), nullable=False))
+
+
+class DimAssinaturaModel(SQLModel, table=True):
+    __tablename__ = "dim_assinatura"
+
+    assinatura_id: int = Field(sa_column=Column(Integer, primary_key=True, autoincrement=True))
+    codigo: str = Field(sa_column=Column(String(128), nullable=False, unique=True))
+    nome: str = Field(sa_column=Column(String(255), nullable=False))
+
+
+class FatoCustoModel(SQLModel, table=True):
+    __tablename__ = "fact_custo"
 
     id: str = Field(sa_column=Column(String(36), primary_key=True))
-    subscription_id: str = Field(sa_column=Column(String(128), nullable=False, index=True))
-    cost: float = Field(sa_column=Column(Float, nullable=False))
-    record_date: date = Field(sa_column=Column(Date, nullable=False, index=True))
-    resource_type: str = Field(sa_column=Column(String(255), nullable=False))
+    data_id: int = Field(sa_column=Column(Integer, ForeignKey("dim_data.data_id"), nullable=False, index=True))
+    servico_id: int = Field(
+        sa_column=Column(Integer, ForeignKey("dim_servico.servico_id"), nullable=False, index=True)
+    )
+    assinatura_id: int = Field(
+        sa_column=Column(Integer, ForeignKey("dim_assinatura.assinatura_id"), nullable=False, index=True)
+    )
+    custo: float = Field(sa_column=Column(Float, nullable=False))
     tags: str = Field(sa_column=Column(Text, nullable=False))
-
-
-class CostDimModel(SQLModel, table=True):
-    __tablename__ = "cost_dims"
-
-    id: str = Field(sa_column=Column(String(36), primary_key=True))
-    record_date: date = Field(sa_column=Column(Date, nullable=False, index=True))
-    category: str = Field(sa_column=Column(String(100), nullable=False))
-    service_name: str = Field(sa_column=Column(String(255), nullable=False))
 
 
 class UserModel(SQLModel, table=True):

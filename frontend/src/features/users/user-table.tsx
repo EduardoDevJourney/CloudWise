@@ -15,9 +15,9 @@ export function UserTable() {
   const { data, isLoading, isError, error } = useQuery(usersQuery);
   const update = useUpdateUser();
 
-  if (isLoading) return <Loading label="Loading users..." />;
+  if (isLoading) return <Loading label="Carregando usuários..." />;
   if (isError) return <p className="text-sm text-red-600">{describeError(error)}</p>;
-  if (!data?.length) return <p className="text-sm text-slate-500">No users registered.</p>;
+  if (!data?.length) return <p className="text-sm text-slate-500">Nenhum usuário cadastrado.</p>;
 
   return (
     <div className="space-y-3">
@@ -25,10 +25,10 @@ export function UserTable() {
         <table className="min-w-full text-left text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Role</th>
+              <th className="px-4 py-3">E-mail</th>
+              <th className="px-4 py-3">Papel</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Action</th>
+              <th className="px-4 py-3">Ação</th>
             </tr>
           </thead>
           <tbody>
@@ -39,7 +39,7 @@ export function UserTable() {
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">
                     <Select
-                      aria-label={`Role of ${user.email}`}
+                      aria-label={`Papel de ${user.email}`}
                       value={user.role}
                       disabled={isSelf || update.isPending}
                       onChange={(e) => update.mutate({ id: user.id, role: e.target.value as UserRole })}
@@ -51,7 +51,7 @@ export function UserTable() {
                       ))}
                     </Select>
                   </td>
-                  <td className="px-4 py-3">{user.active ? 'Active' : 'Blocked'}</td>
+                  <td className="px-4 py-3">{user.active ? 'Ativo' : 'Bloqueado'}</td>
                   <td className="px-4 py-3">
                     <Button
                       variant="secondary"
@@ -59,7 +59,7 @@ export function UserTable() {
                       disabled={isSelf || update.isPending}
                       onClick={() => update.mutate({ id: user.id, active: !user.active })}
                     >
-                      {user.active ? 'Block' : 'Unblock'}
+                      {user.active ? 'Bloquear' : 'Desbloquear'}
                     </Button>
                   </td>
                 </tr>

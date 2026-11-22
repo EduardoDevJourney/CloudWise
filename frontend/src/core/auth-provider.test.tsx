@@ -29,7 +29,7 @@ describe('AuthProvider', () => {
         <Who />
       </AuthProvider>,
     );
-    expect(await screen.findByText('Not authenticated')).toBeInTheDocument();
+    expect(await screen.findByText('Não autenticado')).toBeInTheDocument();
   });
 
   it('shows the blocked access screen on 403', async () => {
@@ -39,6 +39,6 @@ describe('AuthProvider', () => {
         <Who />
       </AuthProvider>,
     );
-    expect(await screen.findByText('Access blocked')).toBeInTheDocument();
+    expect(await screen.findByText('Acesso bloqueado')).toBeInTheDocument();
   });
 });

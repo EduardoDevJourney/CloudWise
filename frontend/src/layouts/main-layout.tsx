@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { useAuth } from '@core/auth-context';
 import { isAdmin, ROLE_LABELS } from '@core/roles';
+import { DevUserSwitcher } from '@layouts/dev-user-switcher';
 
 export function MainLayout({ children }: { children: ReactNode }) {
   const { email, role } = useAuth();
@@ -13,7 +14,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div>
             <p className="text-lg font-semibold text-slate-900">Cloud Wise</p>
-            <p className="text-sm text-slate-500">Standardized infrastructure portal</p>
+            <p className="text-sm text-slate-500">Portal de infraestrutura padronizada</p>
           </div>
           <nav className="flex items-center gap-4 text-sm font-medium">
             <Link to="/dashboard" className="text-slate-700 hover:text-blue-600">
@@ -24,9 +25,10 @@ export function MainLayout({ children }: { children: ReactNode }) {
             </Link>
             {isAdmin(role) ? (
               <Link to="/users" className="text-slate-700 hover:text-blue-600">
-                Users
+                Usuários
               </Link>
             ) : null}
+            {import.meta.env.DEV ? <DevUserSwitcher /> : null}
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
               {email} · {ROLE_LABELS[role]}
             </span>

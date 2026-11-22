@@ -21,11 +21,11 @@ function RunOpsPage() {
         <ProvisionForm />
       ) : (
         <p className="rounded-md bg-slate-100 p-4 text-sm text-slate-600">
-          Your account is read-only. Ask an admin for the provisioner role to create resources.
+          Seu perfil é somente leitura. Peça a um administrador o papel de provisionador para criar recursos.
         </p>
       )}
       <div>
-        <h2 className="mb-3 text-lg font-semibold">Requests</h2>
+        <h2 className="mb-3 text-lg font-semibold">Solicitações</h2>
         <RequestList />
       </div>
     </div>

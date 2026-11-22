@@ -9,6 +9,13 @@
 - **DB:** SQL Server local (Docker) → Azure SQL em produção
 - **Bounded Contexts:** `runops`, `cloudwise`
 
+## Modelo de custos
+
+- Custos usam esquema estrela (`fact_custo` + `dim_data`, `dim_servico`, `dim_assinatura`): é o lado
+  analítico e cresce para novos relatórios. O lado operacional (users, templates, solicitações)
+  continua normalizado por ser transacional.
+- Filtros e agregações rodam em SQL (joins e `GROUP BY`) no `SQLCostsRepository`.
+
 ## Integrações Externas
 
 - Azure Easy Auth (headers `X-MS-CLIENT-PRINCIPAL*`)

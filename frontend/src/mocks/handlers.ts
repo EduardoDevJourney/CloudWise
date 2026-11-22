@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import { DEV_USERS } from '@core/dev-users';
 import type {
   CloudWiseDashboardResponse,
   ProvisionRequestCreate,
@@ -29,7 +30,11 @@ const mockDashboard: CloudWiseDashboardResponse = {
 };
 
 export const handlers = [
-  http.get('/api/v1/me', () => HttpResponse.json({ id: 'dev-user', email: 'dev-user@dev.local', role: 'runops.admin' })),
+  http.get('/api/v1/me', ({ request }) => {
+    const id = request.headers.get('X-Dev-User-Id');
+    const user = DEV_USERS.find((u) => u.id === id) ?? DEV_USERS[2];
+    return HttpResponse.json(user);
+  }),
   http.get('/api/v1/users', () => HttpResponse.json(mockUsers)),
   http.patch('/api/v1/users/:id', async ({ params, request }) => {
     const user = mockUsers.find((u) => u.id === params.id);
@@ -41,8 +46,8 @@ export const handlers = [
   http.get('/api/v1/cloudwise/costs', () => HttpResponse.json([])),
   http.get('/api/v1/runops/templates', () =>
     HttpResponse.json([
-      { id: '1', slug: 'rg-storage', name: 'Resource Group + Storage Account', description: 'RG with Storage', params_schema: {}, azure_sku: 'Standard_LRS' },
-      { id: '2', slug: 'rg-keyvault', name: 'Resource Group + Key Vault', description: 'RG with Key Vault', params_schema: {}, azure_sku: 'standard' },
+      { id: '1', slug: 'rg-storage', name: 'Resource Group + Storage Account', description: 'RG com Storage', params_schema: {}, azure_sku: 'Standard_LRS' },
+      { id: '2', slug: 'rg-keyvault', name: 'Resource Group + Key Vault', description: 'RG com Key Vault', params_schema: {}, azure_sku: 'standard' },
     ]),
   ),
   http.get('/api/v1/runops/policy', () =>

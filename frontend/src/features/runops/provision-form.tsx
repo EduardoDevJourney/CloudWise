@@ -51,7 +51,7 @@ export function ProvisionForm() {
         void form.handleSubmit();
       }}
     >
-      <h2 className="text-lg font-semibold text-slate-900">New provisioning request</h2>
+      <h2 className="text-lg font-semibold text-slate-900">Novo provisionamento</h2>
 
       <form.Field name="template_id">
         {(field) => (
@@ -62,7 +62,7 @@ export function ProvisionForm() {
               disabled={catalogLoading}
               onChange={(e) => field.handleChange(e.target.value)}
             >
-              {catalogLoading ? <option>Loading...</option> : null}
+              {catalogLoading ? <option>Carregando...</option> : null}
               {(templates.data ?? []).map((t) => (
                 <option key={t.slug} value={t.slug}>
                   {t.name}
@@ -76,7 +76,7 @@ export function ProvisionForm() {
       <form.Field name="resource_name">
         {(field) => (
           <label className="block space-y-1 text-sm">
-            <span>Resource name</span>
+            <span>Nome do recurso</span>
             <Input
               value={field.state.value}
               aria-describedby="resource-name-hint"
@@ -91,7 +91,7 @@ export function ProvisionForm() {
                   : 'block text-xs text-slate-500'
               }
             >
-              3 to 20 characters: lowercase letters, digits and hyphens, starting with a letter.
+              3 a 20 caracteres: minúsculas, números e hífen, começando por letra.
             </span>
           </label>
         )}
@@ -100,7 +100,7 @@ export function ProvisionForm() {
       <form.Field name="environment">
         {(field) => (
           <label className="block space-y-1 text-sm">
-            <span>Environment</span>
+            <span>Ambiente</span>
             <Select
               value={field.state.value}
               disabled={catalogLoading}
@@ -119,7 +119,7 @@ export function ProvisionForm() {
       <form.Field name="location">
         {(field) => (
           <label className="block space-y-1 text-sm">
-            <span>Location</span>
+            <span>Região</span>
             <Select
               value={field.state.value}
               disabled={catalogLoading}
@@ -136,10 +136,10 @@ export function ProvisionForm() {
       </form.Field>
 
       <Button type="submit" disabled={mutation.isPending}>
-        {mutation.isPending ? 'Provisioning...' : 'Provision'}
+        {mutation.isPending ? 'Provisionando...' : 'Provisionar'}
       </Button>
 
-      {lastId ? <p className="text-sm text-slate-600">Request created: {lastId}</p> : null}
+      {lastId ? <p className="text-sm text-slate-600">Solicitação criada: {lastId}</p> : null}
       {mutation.isError ? (
         <p className="text-sm text-red-600">{describeError(mutation.error)}</p>
       ) : null}

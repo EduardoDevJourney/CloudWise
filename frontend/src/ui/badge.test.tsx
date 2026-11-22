@@ -5,10 +5,10 @@ import type { ProvisionStatus } from '@core/types/api';
 import { StatusBadge } from '@ui/badge';
 
 const cases: [ProvisionStatus, string, string][] = [
-  ['pending', 'Pending', 'bg-yellow-100'],
-  ['running', 'Running', 'bg-blue-100'],
-  ['success', 'Success', 'bg-green-100'],
-  ['failed', 'Failed', 'bg-red-100'],
+  ['pending', 'Pendente', 'bg-yellow-100'],
+  ['running', 'Executando', 'bg-blue-100'],
+  ['success', 'Sucesso', 'bg-green-100'],
+  ['failed', 'Falhou', 'bg-red-100'],
 ];
 
 describe('StatusBadge', () => {

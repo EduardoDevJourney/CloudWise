@@ -22,9 +22,9 @@ describe('ProvisionForm', () => {
     await screen.findByRole('option', { name: 'eastus2' });
 
     await user.type(screen.getByRole('textbox'), 'meu-recurso');
-    await user.click(screen.getByRole('button', { name: 'Provision' }));
+    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
 
-    expect(await screen.findByText(/Request created:/)).toBeInTheDocument();
+    expect(await screen.findByText(/Solicitação criada:/)).toBeInTheDocument();
   });
 
   it('shows the policy violations returned with a 422', async () => {
@@ -41,7 +41,7 @@ describe('ProvisionForm', () => {
     await screen.findByRole('option', { name: 'eastus2' });
 
     await user.type(screen.getByRole('textbox'), 'nome-valido');
-    await user.click(screen.getByRole('button', { name: 'Provision' }));
+    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
 
     await waitFor(() =>
       expect(screen.getByText(/invalid resource_name · location must be one of: eastus/)).toBeInTheDocument(),
@@ -60,11 +60,11 @@ describe('ProvisionForm', () => {
     renderWithClient(<ProvisionForm />);
     await screen.findByRole('option', { name: 'eastus2' });
 
-    expect(screen.getByText(/3 to 20 characters: lowercase letters, digits and hyphens/)).toBeInTheDocument();
+    expect(screen.getByText(/3 a 20 caracteres: minúsculas, números e hífen/)).toBeInTheDocument();
 
     await user.type(screen.getByRole('textbox'), 'AB');
     expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
-    await user.click(screen.getByRole('button', { name: 'Provision' }));
+    await user.click(screen.getByRole('button', { name: 'Provisionar' }));
 
     expect(posted).toBe(false);
   });

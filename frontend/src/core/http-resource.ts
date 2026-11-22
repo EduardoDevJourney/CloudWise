@@ -1,3 +1,4 @@
+import { getDevUser } from '@core/dev-users';
 import type { FriendlyError } from '@core/types/api';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
@@ -31,8 +32,9 @@ export async function httpResource<T>(input: RequestInfo, init?: RequestInit): P
   const headers = new Headers(init?.headers);
   headers.set('Content-Type', 'application/json');
   headers.set('Accept', 'application/json');
-  headers.set('X-Dev-User-Id', 'dev-user');
-  headers.set('X-Dev-User-Email', 'dev-user@dev.local');
+  const devUser = getDevUser();
+  headers.set('X-Dev-User-Id', devUser.id);
+  headers.set('X-Dev-User-Email', devUser.email);
 
   const response = await fetch(input, { ...init, headers });
 

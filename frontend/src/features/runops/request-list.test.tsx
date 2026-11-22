@@ -19,7 +19,7 @@ describe('RequestList', () => {
   it('mostra estado vazio', async () => {
     server.use(http.get('/api/v1/runops/requests', () => HttpResponse.json([])));
     renderWithClient(<RequestList />);
-    expect(await screen.findByText('No requests yet.')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhuma solicitação ainda.')).toBeInTheDocument();
   });
 
   it('shows status and execution duration', async () => {
@@ -41,9 +41,9 @@ describe('RequestList', () => {
     );
     renderWithClient(<RequestList />);
 
-    expect(await screen.findByText('Success')).toBeInTheDocument();
+    expect(await screen.findByText('Sucesso')).toBeInTheDocument();
     expect(screen.getByText('42.5s')).toBeInTheDocument();
-    expect(screen.getByText('Running')).toBeInTheDocument();
+    expect(screen.getByText('Executando')).toBeInTheDocument();
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);
   });
 

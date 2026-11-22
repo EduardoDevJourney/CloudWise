@@ -19,17 +19,17 @@ describe('UserTable', () => {
     renderAsAdmin();
     const selfRow = (await screen.findByText('dev-user@dev.local')).closest('tr')!;
     expect(within(selfRow).getByRole('combobox')).toBeDisabled();
-    expect(within(selfRow).getByRole('button', { name: 'Block' })).toBeDisabled();
+    expect(within(selfRow).getByRole('button', { name: 'Bloquear' })).toBeDisabled();
   });
 
   it('changes the role of another user', async () => {
     const user = userEvent.setup();
     renderAsAdmin();
-    const select = await screen.findByLabelText('Role of ana@corp.com');
+    const select = await screen.findByLabelText('Papel de ana@corp.com');
 
     await user.selectOptions(select, 'runops.provisioner');
 
-    await waitFor(() => expect(screen.getByLabelText('Role of ana@corp.com')).toHaveValue('runops.provisioner'));
+    await waitFor(() => expect(screen.getByLabelText('Papel de ana@corp.com')).toHaveValue('runops.provisioner'));
   });
 
   it('blocks and unblocks a user', async () => {
@@ -37,8 +37,8 @@ describe('UserTable', () => {
     renderAsAdmin();
     const row = (await screen.findByText('ana@corp.com')).closest('tr')!;
 
-    await user.click(within(row).getByRole('button', { name: 'Block' }));
-    expect(await within(row).findByRole('button', { name: 'Unblock' })).toBeInTheDocument();
-    expect(within(row).getByText('Blocked')).toBeInTheDocument();
+    await user.click(within(row).getByRole('button', { name: 'Bloquear' }));
+    expect(await within(row).findByRole('button', { name: 'Desbloquear' })).toBeInTheDocument();
+    expect(within(row).getByText('Bloqueado')).toBeInTheDocument();
   });
 });
