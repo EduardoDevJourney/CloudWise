@@ -1,31 +1,31 @@
 
  RUN  v5.1.1 /home/eduardo-pc/tcc/CloudWise/frontend
 
- ✓ src/features/cloudwise/chart-data.test.ts > chart-data > builds the rounded daily series 3ms
- ✓ src/features/cloudwise/chart-data.test.ts > chart-data > sums per service in descending order 1ms
- ✓ src/features/cloudwise/chart-data.test.ts > chart-data > formats labels 1ms
- ✓ src/features/cloudwise/chart-data.test.ts > chart-data > handles an empty series 1ms
- ✓ src/core/http-resource.test.ts > httpResource > sends the headers of the selected dev user 27ms
  ✓ src/core/dev-users.test.ts > dev-users > starts as the admin user 3ms
  ✓ src/core/dev-users.test.ts > dev-users > remembers the chosen user 2ms
  ✓ src/core/dev-users.test.ts > dev-users > falls back to the admin when the stored id is unknown 1ms
- ✓ src/ui/badge.test.tsx > StatusBadge > status pending has label Pendente and its own color 34ms
- ✓ src/ui/badge.test.tsx > StatusBadge > status running has label Executando and its own color 4ms
- ✓ src/ui/badge.test.tsx > StatusBadge > status success has label Sucesso and its own color 3ms
+ ✓ src/core/http-resource.test.ts > httpResource > sends the headers of the selected dev user 25ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > builds the rounded daily series 4ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > sums per service in descending order 1ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > formats labels 1ms
+ ✓ src/features/cloudwise/chart-data.test.ts > chart-data > handles an empty series 0ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status pending has label Pendente and its own color 27ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status running has label Executando and its own color 3ms
+ ✓ src/ui/badge.test.tsx > StatusBadge > status success has label Sucesso and its own color 4ms
  ✓ src/ui/badge.test.tsx > StatusBadge > status failed has label Falhou and its own color 3ms
- ✓ src/layouts/dev-user-switcher.test.tsx > DevUserSwitcher > lists the three profiles with the admin selected 82ms
- ✓ src/core/auth-provider.test.tsx > AuthProvider > exposes the user and role coming from /me 66ms
- ✓ src/core/auth-provider.test.tsx > AuthProvider > shows the not authenticated screen on 401 16ms
- ✓ src/core/auth-provider.test.tsx > AuthProvider > shows the blocked access screen on 403 10ms
- ✓ src/features/runops/request-list.test.tsx > RequestList > mostra estado vazio 55ms
- ✓ src/features/runops/request-list.test.tsx > RequestList > shows status and execution duration 27ms
- ✓ src/features/runops/request-list.test.tsx > RequestList > mostra os recursos criados no sucesso 14ms
- ✓ src/layouts/dev-user-switcher.test.tsx > DevUserSwitcher > stores the chosen profile and reloads the page 35ms
- ✓ src/features/runops/request-list.test.tsx > RequestList > mostra a mensagem de erro quando falha 44ms
- ✓ src/features/users/user-table.test.tsx > UserTable > lists users and stops the admin from changing themselves 119ms
- ✓ src/features/users/user-table.test.tsx > UserTable > changes the role of another user 49ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra estado vazio 52ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > shows status and execution duration 29ms
+ ✓ src/layouts/dev-user-switcher.test.tsx > DevUserSwitcher > lists the three profiles with the admin selected 86ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > exposes the user and role coming from /me 59ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > shows the not authenticated screen on 401 14ms
+ ✓ src/core/auth-provider.test.tsx > AuthProvider > shows the blocked access screen on 403 13ms
+ ✓ src/layouts/dev-user-switcher.test.tsx > DevUserSwitcher > stores the chosen profile and reloads the page 34ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra os recursos criados no sucesso 15ms
+ ✓ src/features/runops/request-list.test.tsx > RequestList > mostra a mensagem de erro quando falha 47ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > lists users and stops the admin from changing themselves 131ms
+ ✓ src/features/users/user-table.test.tsx > UserTable > changes the role of another user 51ms
  ✓ src/features/users/user-table.test.tsx > UserTable > blocks and unblocks a user 37ms
- ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > builds the template, environment and location selects from the API 143ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > builds the template, environment and location selects from the API 152ms
 stderr | src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > shows the cost per day and per service charts
 The width(0) and height(0) of chart should be greater than 0,
        please check the style of container, or the props width(100%) and height(100%),
@@ -36,14 +36,14 @@ The width(0) and height(0) of chart should be greater than 0,
        or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
        height and width.
 
- ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > envia os filtros escolhidos para a API 133ms
- ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > shows the cost per day and per service charts 19ms
- ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > shows the id of the created request 101ms
- ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > shows the policy violations returned with a 422 69ms
+ ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > envia os filtros escolhidos para a API 141ms
+ ✓ src/features/cloudwise/dashboard.test.tsx > CloudWiseDashboard > shows the cost per day and per service charts 23ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > shows the id of the created request 112ms
+ ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > shows the policy violations returned with a 422 74ms
  ✓ src/features/runops/provision-form.test.tsx > ProvisionForm > shows the name hint and does not submit a name outside the pattern 46ms
 
  Test Files  10 passed (10)
       Tests  30 passed (30)
-   Start at  15:45:48
-   Duration  1.29s (environment 47%, setup 23%, tests 14%, import 12%, transform 3%, worker 1%)
+   Start at  16:22:51
+   Duration  1.44s (environment 52%, setup 21%, tests 13%, import 11%, transform 2%, worker 1%)
 

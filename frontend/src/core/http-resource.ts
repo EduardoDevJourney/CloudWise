@@ -14,7 +14,7 @@ export function defineApiRouteFn(path: string) {
 async function parseError(response: Response): Promise<FriendlyError> {
   const data = await response.json().catch(() => null);
   return {
-    title: data?.title ?? 'Request failed',
+    title: data?.title ?? 'Falha na requisição',
     detail: data?.detail ?? response.statusText,
     status: response.status,
   };

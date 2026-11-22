@@ -63,7 +63,7 @@ export function CloudWiseDashboard() {
           </Select>
         </label>
         <label className="space-y-1 text-sm">
-          <span>Subscription</span>
+          <span>Assinatura</span>
           <Select
             value={filters.subscription_id ?? ''}
             onChange={(e) => setFilter('subscription_id', e.target.value)}
@@ -105,7 +105,7 @@ export function CloudWiseDashboard() {
               <p className="text-2xl font-semibold">{data.summary.top_service}</p>
             </article>
             <article className={card}>
-              <p className="text-sm text-slate-500">Subscriptions</p>
+              <p className="text-sm text-slate-500">Assinaturas</p>
               <p className="text-2xl font-semibold">{data.summary.subscription_count}</p>
             </article>
           </section>
